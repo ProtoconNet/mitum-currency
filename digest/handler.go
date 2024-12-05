@@ -35,6 +35,7 @@ var (
 	HandlerPathCurrency                   = `/currency/{currency_id:` + types.ReCurrencyID + `}`
 	HandlerPathManifests                  = `/block/manifests`
 	HandlerPathOperations                 = `/block/operations`
+	HandlerPathOperationsByHash           = `/block/operations/facts`
 	HandlerPathOperation                  = `/block/operation/{hash:(?i)[0-9a-z][0-9a-z]+}`
 	HandlerPathBlockByHeight              = `/block/{height:[0-9]+}`
 	HandlerPathBlockByHash                = `/block/{hash:(?i)[0-9a-z][0-9a-z]+}`
@@ -167,6 +168,8 @@ func (hd *Handlers) setHandlers() {
 	_ = hd.setHandler(HandlerPathManifests, hd.handleManifests, true, get, get).
 		Methods(http.MethodOptions, "GET")
 	_ = hd.setHandler(HandlerPathOperations, hd.handleOperations, true, get, get).
+		Methods(http.MethodOptions, "GET")
+	_ = hd.setHandler(HandlerPathOperationsByHash, hd.handleOperationsByHash, true, get, get).
 		Methods(http.MethodOptions, "GET")
 	_ = hd.setHandler(HandlerPathOperation, hd.handleOperation, true, get, get).
 		Methods(http.MethodOptions, "GET")

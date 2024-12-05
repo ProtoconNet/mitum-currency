@@ -2,8 +2,10 @@ package digest
 
 import (
 	"fmt"
+	"github.com/ProtoconNet/mitum2/util/valuehash"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
@@ -223,6 +225,59 @@ func (hd *Handlers) handleOperationsByHeightInGroup(
 	return b, int64(len(vas)) == hd.itemsLimiter("operations"), err
 }
 
+func (hd *Handlers) handleOperationsByHash(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	hashes := ParseStringQuery(r.URL.Query().Get("hashes"))
+
+	cacheKey := CacheKey(r.URL.Path, stringHashesQuery(hashes))
+	if err := LoadFromCache(hd.cache, cacheKey, w); err == nil {
+		return
+	}
+
+	if v, err, shared := hd.rg.Do(cacheKey, func() (interface{}, error) {
+		i, err := hd.handleOperationsByHashInGroup(hashes)
+		return i, err
+	}); err != nil {
+		HTTP2HandleError(w, err)
+	} else {
+		b := v.([]byte)
+
+		HTTP2WriteHalBytes(hd.enc, w, b, http.StatusOK)
+
+		if !shared {
+			expire := hd.expireNotFilled
+			HTTP2WriteCache(w, cacheKey, expire)
+		}
+	}
+}
+
+func (hd *Handlers) handleOperationsByHashInGroup(
+	hashes string,
+) ([]byte, error) {
+	filter, err := buildOperationsByHashesFilter(hashes)
+	if err != nil {
+		return nil, err
+	}
+
+	var vas []Hal
+	var opsCount int64
+	switch l, count, e := hd.loadOperationsHALFromDatabaseByHash(filter); {
+	case e != nil:
+		return nil, e
+	case len(l) < 1:
+		return nil, mitumutil.ErrNotFound.Errorf("Operations in handleOperationsByHash")
+	default:
+		vas = l
+		opsCount = count
+	}
+
+	hal := hd.buildOperationsByHashHal(vas)
+	hal.AddExtras("total_operations", opsCount)
+
+	b, err := hd.enc.Marshal(hal)
+	return b, err
+}
+
 func (hd *Handlers) buildOperationHal(va OperationValue) (Hal, error) {
 	var hal Hal
 	var h string
@@ -297,6 +352,13 @@ func (*Handlers) buildOperationsHal(baseSelf string, vas []Hal, offset string, r
 	return hal
 }
 
+func (*Handlers) buildOperationsByHashHal(vas []Hal) Hal {
+	var hal Hal
+	hal = NewBaseHal(vas, NewHalLink("", nil))
+
+	return hal
+}
+
 func buildOperationsFilterByOffset(offset string, reverse bool) (bson.M, error) {
 	filter := bson.M{}
 	if len(offset) > 0 {
@@ -348,6 +410,39 @@ func buildOperationsByHeightFilterByOffset(height base.Height, offset string, re
 			"height": height,
 			"index":  bson.M{"$gt": index},
 		}
+	}
+
+	return filter, nil
+}
+
+const maxHashCount = 40
+
+func buildOperationsByHashesFilter(hashes string) (bson.M, error) {
+	var filter bson.M
+	if len(hashes) < 1 {
+		return nil, errors.Errorf("empty hashes")
+	}
+
+	hashStrArr := strings.Split(hashes, ",")
+	if len(hashStrArr) > maxHashCount {
+		return nil, errors.Errorf("total hash count, %v is over max hash count, %v", len(hashStrArr), maxHashCount)
+	}
+
+	var hashArr []mitumutil.Hash
+	for i := range hashStrArr {
+		h := valuehash.NewBytesFromString(hashStrArr[i])
+
+		err := h.IsValid(nil)
+		if err != nil {
+			return nil, err
+		}
+		hashArr = append(hashArr, h)
+	}
+
+	filter = bson.M{
+		"fact": bson.M{
+			"$in": hashArr,
+		},
 	}
 
 	return filter, nil
@@ -411,6 +506,29 @@ func (hd *Handlers) loadOperationsHALFromDatabase(filter bson.M, reverse bool, l
 	var opsCount int64
 	if err := hd.database.Operations(
 		filter, true, reverse, limit,
+		func(_ mitumutil.Hash, va OperationValue, count int64) (bool, error) {
+			hal, err := hd.buildOperationHal(va)
+			if err != nil {
+				return false, err
+			}
+			vas = append(vas, hal)
+			opsCount = count
+			return true, nil
+		},
+	); err != nil {
+		return nil, opsCount, err
+	} else if len(vas) < 1 {
+		return nil, opsCount, nil
+	}
+
+	return vas, opsCount, nil
+}
+
+func (hd *Handlers) loadOperationsHALFromDatabaseByHash(filter bson.M) ([]Hal, int64, error) {
+	var vas []Hal
+	var opsCount int64
+	if err := hd.database.OperationsByHash(
+		filter,
 		func(_ mitumutil.Hash, va OperationValue, count int64) (bool, error) {
 			hal, err := hd.buildOperationHal(va)
 			if err != nil {
