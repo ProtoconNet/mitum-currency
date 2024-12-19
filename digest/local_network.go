@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/ProtoconNet/mitum-currency/v3/digest/config"
-	"github.com/ProtoconNet/mitum-currency/v3/digest/util"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	dutil "github.com/ProtoconNet/mitum-currency/v3/digest/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
 )
 
@@ -22,7 +22,7 @@ type LocalNetwork struct {
 
 func (no LocalNetwork) Set(ctx context.Context) (context.Context, error) {
 	var conf config.LocalNetwork
-	if err := mitumutil.LoadFromContext(ctx, ContextValueLocalNetwork, &conf); err != nil {
+	if err := util.LoadFromContext(ctx, ContextValueLocalNetwork, &conf); err != nil {
 		return ctx, err
 	}
 
@@ -60,7 +60,7 @@ func (no LocalNetwork) setConnInfo(conf config.LocalNetwork) error {
 		return nil
 	}
 
-	ci, err := util.NewHTTPConnInfoFromString(*no.URL, false)
+	ci, err := dutil.NewHTTPConnInfoFromString(*no.URL, false)
 	if err != nil {
 		return err
 	}

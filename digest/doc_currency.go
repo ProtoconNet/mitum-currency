@@ -1,7 +1,7 @@
 package digest
 
 import (
-	mongodbstorage "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
+	mongodbst "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
@@ -11,7 +11,7 @@ import (
 )
 
 type CurrencyDoc struct {
-	mongodbstorage.BaseDoc
+	mongodbst.BaseDoc
 	st base.State
 	cd types.CurrencyDesign
 }
@@ -22,7 +22,7 @@ func NewCurrencyDoc(st base.State, enc encoder.Encoder) (CurrencyDoc, error) {
 		return CurrencyDoc{}, errors.Wrap(err, "CurrencyDoc needs CurrencyDesign state")
 	}
 
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodbst.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return CurrencyDoc{}, err
 	}

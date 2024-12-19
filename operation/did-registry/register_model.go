@@ -4,7 +4,7 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/ProtoconNet/mitum2/util/valuehash"
@@ -17,18 +17,18 @@ var (
 )
 
 type RegisterModelFact struct {
-	mitumbase.BaseFact
-	sender    mitumbase.Address
-	contract  mitumbase.Address
+	base.BaseFact
+	sender    base.Address
+	contract  base.Address
 	didMethod string
 	currency  types.CurrencyID
 }
 
 func NewRegisterModelFact(
-	token []byte, sender, contract mitumbase.Address,
+	token []byte, sender, contract base.Address,
 	didMethod string, currency types.CurrencyID,
 ) RegisterModelFact {
-	bf := mitumbase.NewBaseFact(RegisterModelFactHint, token)
+	bf := base.NewBaseFact(RegisterModelFactHint, token)
 	fact := RegisterModelFact{
 		BaseFact:  bf,
 		sender:    sender,
@@ -83,24 +83,24 @@ func (fact RegisterModelFact) Bytes() []byte {
 	)
 }
 
-func (fact RegisterModelFact) Token() mitumbase.Token {
+func (fact RegisterModelFact) Token() base.Token {
 	return fact.BaseFact.Token()
 }
 
-func (fact RegisterModelFact) Sender() mitumbase.Address {
+func (fact RegisterModelFact) Sender() base.Address {
 	return fact.sender
 }
 
-func (fact RegisterModelFact) Signer() mitumbase.Address {
+func (fact RegisterModelFact) Signer() base.Address {
 	return fact.sender
 }
 
-func (fact RegisterModelFact) Contract() mitumbase.Address {
+func (fact RegisterModelFact) Contract() base.Address {
 	return fact.contract
 }
 
-func (fact RegisterModelFact) Addresses() ([]mitumbase.Address, error) {
-	return []mitumbase.Address{fact.sender, fact.contract}, nil
+func (fact RegisterModelFact) Addresses() ([]base.Address, error) {
+	return []base.Address{fact.sender, fact.contract}, nil
 }
 
 func (fact RegisterModelFact) DIDMethod() string {
@@ -118,16 +118,22 @@ func (fact RegisterModelFact) FeeBase() map[types.CurrencyID][]common.Big {
 	return required
 }
 
-func (fact RegisterModelFact) FeePayer() mitumbase.Address {
+func (fact RegisterModelFact) SendRequired() map[types.CurrencyID]common.Big {
+	required := make(map[types.CurrencyID]common.Big)
+
+	return required
+}
+
+func (fact RegisterModelFact) FeePayer() base.Address {
 	return fact.sender
 }
 
-func (fact RegisterModelFact) FactUser() mitumbase.Address {
+func (fact RegisterModelFact) FactUser() base.Address {
 	return fact.sender
 }
 
-func (fact RegisterModelFact) InActiveContractOwnerHandlerOnly() (mitumbase.Address, mitumbase.Address) {
-	return fact.contract, fact.sender
+func (fact RegisterModelFact) InActiveContractOwnerHandlerOnly() [][2]base.Address {
+	return [][2]base.Address{{fact.contract, fact.sender}}
 }
 
 type RegisterModel struct {

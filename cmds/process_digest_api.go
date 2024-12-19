@@ -3,19 +3,19 @@ package cmds
 import (
 	"context"
 	"crypto/tls"
-	"github.com/ProtoconNet/mitum2/network/quicmemberlist"
 
 	"github.com/ProtoconNet/mitum-currency/v3/digest"
 	isaacnetwork "github.com/ProtoconNet/mitum2/isaac/network"
 	"github.com/ProtoconNet/mitum2/launch"
+	"github.com/ProtoconNet/mitum2/network/quicmemberlist"
 	"github.com/ProtoconNet/mitum2/network/quicstream"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/logging"
 )
 
 func ProcessStartDigestAPI(ctx context.Context) (context.Context, error) {
 	var nt *digest.HTTP2Server
-	if err := mitumutil.LoadFromContext(ctx, digest.ContextValueDigestNetwork, &nt); err != nil {
+	if err := util.LoadFromContext(ctx, digest.ContextValueDigestNetwork, &nt); err != nil {
 		return ctx, err
 	}
 	if nt == nil {
@@ -27,12 +27,12 @@ func ProcessStartDigestAPI(ctx context.Context) (context.Context, error) {
 
 func ProcessDigestAPI(ctx context.Context) (context.Context, error) {
 	var design digest.YamlDigestDesign
-	if err := mitumutil.LoadFromContext(ctx, digest.ContextValueDigestDesign, &design); err != nil {
+	if err := util.LoadFromContext(ctx, digest.ContextValueDigestDesign, &design); err != nil {
 		return ctx, err
 	}
 
 	var log *logging.Logging
-	if err := mitumutil.LoadFromContextOK(ctx, launch.LoggingContextKey, &log); err != nil {
+	if err := util.LoadFromContextOK(ctx, launch.LoggingContextKey, &log); err != nil {
 		return ctx, err
 	}
 
@@ -43,7 +43,7 @@ func ProcessDigestAPI(ctx context.Context) (context.Context, error) {
 	}
 
 	var st *digest.Database
-	if err := mitumutil.LoadFromContextOK(ctx, digest.ContextValueDigestDatabase, &st); err != nil {
+	if err := util.LoadFromContextOK(ctx, digest.ContextValueDigestDatabase, &st); err != nil {
 		log.Log().Debug().Err(err).Msg("digest api disabled; empty database")
 
 		return ctx, nil
@@ -61,7 +61,7 @@ func ProcessDigestAPI(ctx context.Context) (context.Context, error) {
 	var params *launch.LocalParams
 	var memberList *quicmemberlist.Memberlist
 	var nodeList = design.ConnInfo
-	if err := mitumutil.LoadFromContextOK(ctx,
+	if err := util.LoadFromContextOK(ctx,
 		launch.LocalParamsContextKey, &params,
 		launch.MemberlistContextKey, &memberList,
 	); err != nil {

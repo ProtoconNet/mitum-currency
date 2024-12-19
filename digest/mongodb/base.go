@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ProtoconNet/mitum-currency/v3/digest/util"
+	dutil "github.com/ProtoconNet/mitum-currency/v3/digest/util"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum2/base"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/logging"
 	"github.com/bluele/gcache"
@@ -50,7 +50,7 @@ func NewDatabase(client *Client, encs *encoder.Encoders, enc encoder.Encoder) (*
 	if enc == nil {
 		e, found := encs.Find(bsonenc.BSONEncoderHint)
 		if !found {
-			return nil, mitumutil.ErrNotFound.Errorf("Unknown encoder hint, %q", bsonenc.BSONEncoderHint)
+			return nil, util.ErrNotFound.Errorf("Unknown encoder hint, %q", bsonenc.BSONEncoderHint)
 		} else {
 			enc = e
 		}
@@ -68,7 +68,7 @@ func NewDatabase(client *Client, encs *encoder.Encoders, enc encoder.Encoder) (*
 }
 
 func NewDatabaseFromURI(uri string, encs *encoder.Encoders) (*Database, error) {
-	parsed, err := util.ParseURL(uri, false)
+	parsed, err := dutil.ParseURL(uri, false)
 	if err != nil {
 		return nil, errors.Wrap(err, "invalid storge uri")
 	}
@@ -91,7 +91,7 @@ func NewDatabaseFromURI(uri string, encs *encoder.Encoders) (*Database, error) {
 
 	var be encoder.Encoder
 	if e, found := encs.Find(bsonenc.BSONEncoderHint); !found { // NOTE get latest bson encoder
-		return nil, mitumutil.ErrNotFound.Errorf("Unknown encoder hint, %q", bsonenc.BSONEncoderHint)
+		return nil, util.ErrNotFound.Errorf("Unknown encoder hint, %q", bsonenc.BSONEncoderHint)
 	} else {
 		be = e
 	}
@@ -112,7 +112,7 @@ func (st *Database) Initialize() error {
 		return nil
 	}
 
-	// if err := st.loadLastBlock(); err != nil && !errors.Is(err, mitumutil.ErrNotFound) {
+	// if err := st.loadLastBlock(); err != nil && !errors.Is(err, util.ErrNotFound) {
 	// 	return err
 	// }
 	/*
@@ -312,7 +312,7 @@ func (st *Database) Info(key string) ([]byte, bool, error) {
 			return nil
 		},
 	); err != nil {
-		if errors.Is(err, mitumutil.ErrNotFound) || errors.Is(err, mongo.ErrNoDocuments) {
+		if errors.Is(err, util.ErrNotFound) || errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, false, nil
 		}
 

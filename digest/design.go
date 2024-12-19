@@ -8,17 +8,18 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/ProtoconNet/mitum-currency/v3/digest/config"
-	"github.com/ProtoconNet/mitum-currency/v3/digest/util"
-	"github.com/ProtoconNet/mitum2/launch"
-	"github.com/ProtoconNet/mitum2/network/quicstream"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
-	"github.com/rs/zerolog"
 	"math/big"
 	"net"
 	"net/url"
 	"sort"
 	"time"
+
+	"github.com/ProtoconNet/mitum-currency/v3/digest/config"
+	dutil "github.com/ProtoconNet/mitum-currency/v3/digest/util"
+	"github.com/ProtoconNet/mitum2/launch"
+	"github.com/ProtoconNet/mitum2/network/quicstream"
+	"github.com/ProtoconNet/mitum2/util"
+	"github.com/rs/zerolog"
 )
 
 var (
@@ -28,7 +29,7 @@ var (
 )
 
 func init() {
-	DefaultDigestAPICache, _ = util.ParseURL("memory://", false)
+	DefaultDigestAPICache, _ = dutil.ParseURL("memory://", false)
 	DefaultDigestAPIBind = "https://0.0.0.0:54320"
 	//DefaultDigestAPIURL = "https://127.0.0.1:54320"
 }
@@ -49,7 +50,7 @@ type YamlDigestDesign struct {
 }
 
 func (d *YamlDigestDesign) Set(ctx context.Context) (context.Context, error) {
-	e := mitumutil.StringError("set DigestDesign")
+	e := util.StringError("set DigestDesign")
 
 	nctx := context.WithValue(
 		context.Background(),
@@ -61,7 +62,7 @@ func (d *YamlDigestDesign) Set(ctx context.Context) (context.Context, error) {
 		var conf config.LocalNetwork
 		if i, err := d.NetworkYAML.Set(nctx); err != nil {
 			return ctx, e.Wrap(err)
-		} else if err := mitumutil.LoadFromContext(i, ContextValueLocalNetwork, &conf); err != nil {
+		} else if err := util.LoadFromContext(i, ContextValueLocalNetwork, &conf); err != nil {
 			return ctx, e.Wrap(err)
 		} else {
 			d.network = conf
@@ -69,7 +70,7 @@ func (d *YamlDigestDesign) Set(ctx context.Context) (context.Context, error) {
 	}
 
 	var ndesign launch.NodeDesign
-	if err := mitumutil.LoadFromContext(ctx, launch.DesignContextKey, &ndesign); err != nil {
+	if err := util.LoadFromContext(ctx, launch.DesignContextKey, &ndesign); err != nil {
 		return ctx, err
 	}
 
@@ -78,7 +79,7 @@ func (d *YamlDigestDesign) Set(ctx context.Context) (context.Context, error) {
 	}
 
 	if d.network.ConnInfo().URL() == nil {
-		connInfo, _ := util.NewHTTPConnInfoFromString(DefaultDigestURL, ndesign.Network.TLSInsecure)
+		connInfo, _ := dutil.NewHTTPConnInfoFromString(DefaultDigestURL, ndesign.Network.TLSInsecure)
 		_ = d.network.SetConnInfo(connInfo)
 	}
 
@@ -106,7 +107,7 @@ func (d *YamlDigestDesign) Set(ctx context.Context) (context.Context, error) {
 	if d.CacheYAML == nil {
 		d.cache = DefaultDigestAPICache
 	} else {
-		u, err := util.ParseURL(*d.CacheYAML, true)
+		u, err := dutil.ParseURL(*d.CacheYAML, true)
 		if err != nil {
 			return ctx, e.Wrap(err)
 		}

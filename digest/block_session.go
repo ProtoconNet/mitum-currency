@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/ProtoconNet/mitum-currency/v3/digest/isaac"
-	statecurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	stateextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	ccstate "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	cestate "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum2/base"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/fixedtree"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -229,7 +229,7 @@ func (bs *BlockSession) prepareOperations() error {
 		return nil
 	}
 
-	node := func(h mitumutil.Hash) (bool, bool, base.OperationProcessReasonError) {
+	node := func(h util.Hash) (bool, bool, base.OperationProcessReasonError) {
 		no, found := bs.opsTreeNodes[h.String()]
 		if !found {
 			return false, false, nil
@@ -246,7 +246,7 @@ func (bs *BlockSession) prepareOperations() error {
 		var doc OperationDoc
 		switch found, inState, reason := node(op.Fact().Hash()); {
 		case !found:
-			return mitumutil.ErrNotFound.Errorf("Operation, %v in operations tree", op.Fact().Hash().String())
+			return util.ErrNotFound.Errorf("Operation, %v in operations tree", op.Fact().Hash().String())
 		default:
 			var reasonMsg string
 			switch {
@@ -288,20 +288,20 @@ func (bs *BlockSession) prepareAccounts() error {
 		st := bs.sts[i]
 
 		switch {
-		case statecurrency.IsAccountStateKey(st.Key()):
+		case ccstate.IsAccountStateKey(st.Key()):
 			j, err := bs.handleAccountState(st)
 			if err != nil {
 				return err
 			}
 			accountModels = append(accountModels, j...)
-		case statecurrency.IsBalanceStateKey(st.Key()):
+		case ccstate.IsBalanceStateKey(st.Key()):
 			j, address, err := bs.handleBalanceState(st)
 			if err != nil {
 				return err
 			}
 			balanceModels = append(balanceModels, j...)
 			bs.balanceAddressList = append(bs.balanceAddressList, address)
-		case stateextension.IsStateContractAccountKey(st.Key()):
+		case cestate.IsStateContractAccountKey(st.Key()):
 			j, err := bs.handleContractAccountState(st)
 			if err != nil {
 				return err
@@ -327,7 +327,7 @@ func (bs *BlockSession) prepareCurrencies() error {
 	for i := range bs.sts {
 		st := bs.sts[i]
 		switch {
-		case statecurrency.IsDesignStateKey(st.Key()):
+		case ccstate.IsDesignStateKey(st.Key()):
 			j, err := bs.handleCurrencyState(st)
 			if err != nil {
 				return err

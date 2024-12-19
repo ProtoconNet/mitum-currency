@@ -2,7 +2,7 @@ package digest
 
 import (
 	dstate "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum2/base"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -47,7 +47,7 @@ func (bs *BlockSession) prepareDIDRegistry() error {
 	return nil
 }
 
-func (bs *BlockSession) handleDIDRegistryDesignState(st mitumbase.State) ([]mongo.WriteModel, error) {
+func (bs *BlockSession) handleDIDRegistryDesignState(st base.State) ([]mongo.WriteModel, error) {
 	if DIDDesignDoc, err := NewDIDRegistryDesignDoc(st, bs.st.Encoder()); err != nil {
 		return nil, err
 	} else {
@@ -57,7 +57,7 @@ func (bs *BlockSession) handleDIDRegistryDesignState(st mitumbase.State) ([]mong
 	}
 }
 
-func (bs *BlockSession) handleDIDDataState(st mitumbase.State) ([]mongo.WriteModel, error) {
+func (bs *BlockSession) handleDIDDataState(st base.State) ([]mongo.WriteModel, error) {
 	if DIDDataDoc, err := NewDIDDataDoc(st, bs.st.Encoder()); err != nil {
 		return nil, err
 	} else {
@@ -67,7 +67,7 @@ func (bs *BlockSession) handleDIDDataState(st mitumbase.State) ([]mongo.WriteMod
 	}
 }
 
-func (bs *BlockSession) handleDIDDocumentState(st mitumbase.State) ([]mongo.WriteModel, error) {
+func (bs *BlockSession) handleDIDDocumentState(st base.State) ([]mongo.WriteModel, error) {
 	if DIDDocumentDoc, err := NewDIDDocumentDoc(st, bs.st.Encoder()); err != nil {
 		return nil, err
 	} else {

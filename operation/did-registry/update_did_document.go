@@ -4,8 +4,8 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	ctypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/ProtoconNet/mitum2/util/valuehash"
@@ -18,18 +18,18 @@ var (
 )
 
 type UpdateDIDDocumentFact struct {
-	mitumbase.BaseFact
-	sender   mitumbase.Address
-	contract mitumbase.Address
+	base.BaseFact
+	sender   base.Address
+	contract base.Address
 	did      string
 	document types.DIDDocument
-	currency currencytypes.CurrencyID
+	currency ctypes.CurrencyID
 }
 
 func NewUpdateDIDDocumentFact(
-	token []byte, sender, contract mitumbase.Address,
-	did string, doc types.DIDDocument, currency currencytypes.CurrencyID) UpdateDIDDocumentFact {
-	bf := mitumbase.NewBaseFact(UpdateDIDDocumentFactHint, token)
+	token []byte, sender, contract base.Address,
+	did string, doc types.DIDDocument, currency ctypes.CurrencyID) UpdateDIDDocumentFact {
+	bf := base.NewBaseFact(UpdateDIDDocumentFactHint, token)
 	fact := UpdateDIDDocumentFact{
 		BaseFact: bf,
 		sender:   sender,
@@ -94,19 +94,19 @@ func (fact UpdateDIDDocumentFact) Bytes() []byte {
 	)
 }
 
-func (fact UpdateDIDDocumentFact) Token() mitumbase.Token {
+func (fact UpdateDIDDocumentFact) Token() base.Token {
 	return fact.BaseFact.Token()
 }
 
-func (fact UpdateDIDDocumentFact) Sender() mitumbase.Address {
+func (fact UpdateDIDDocumentFact) Sender() base.Address {
 	return fact.sender
 }
 
-func (fact UpdateDIDDocumentFact) Signer() mitumbase.Address {
+func (fact UpdateDIDDocumentFact) Signer() base.Address {
 	return fact.sender
 }
 
-func (fact UpdateDIDDocumentFact) Contract() mitumbase.Address {
+func (fact UpdateDIDDocumentFact) Contract() base.Address {
 	return fact.contract
 }
 
@@ -118,12 +118,12 @@ func (fact UpdateDIDDocumentFact) Document() types.DIDDocument {
 	return fact.document
 }
 
-func (fact UpdateDIDDocumentFact) Currency() currencytypes.CurrencyID {
+func (fact UpdateDIDDocumentFact) Currency() ctypes.CurrencyID {
 	return fact.currency
 }
 
-func (fact UpdateDIDDocumentFact) Addresses() ([]mitumbase.Address, error) {
-	as := []mitumbase.Address{fact.sender}
+func (fact UpdateDIDDocumentFact) Addresses() ([]base.Address, error) {
+	as := []base.Address{fact.sender}
 
 	return as, nil
 }
@@ -135,16 +135,22 @@ func (fact UpdateDIDDocumentFact) FeeBase() map[types.CurrencyID][]common.Big {
 	return required
 }
 
-func (fact UpdateDIDDocumentFact) FeePayer() mitumbase.Address {
+func (fact UpdateDIDDocumentFact) SendRequired() map[types.CurrencyID]common.Big {
+	required := make(map[types.CurrencyID]common.Big)
+
+	return required
+}
+
+func (fact UpdateDIDDocumentFact) FeePayer() base.Address {
 	return fact.sender
 }
 
-func (fact UpdateDIDDocumentFact) FactUser() mitumbase.Address {
+func (fact UpdateDIDDocumentFact) FactUser() base.Address {
 	return fact.sender
 }
 
-func (fact UpdateDIDDocumentFact) ActiveContract() mitumbase.Address {
-	return fact.contract
+func (fact UpdateDIDDocumentFact) ActiveContract() []base.Address {
+	return []base.Address{fact.contract}
 }
 
 type UpdateDIDDocument struct {

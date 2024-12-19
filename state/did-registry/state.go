@@ -2,11 +2,11 @@ package state
 
 import (
 	"fmt"
-	"github.com/ProtoconNet/mitum-currency/v3/common"
-	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"strings"
 
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum-currency/v3/common"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/pkg/errors"
@@ -18,7 +18,7 @@ var (
 	DesignStateKeySuffix = "design"
 )
 
-func DIDStateKey(addr mitumbase.Address) string {
+func DIDStateKey(addr base.Address) string {
 	return fmt.Sprintf("%s:%s", DIDStateKeyPrefix, addr.String())
 }
 
@@ -56,7 +56,7 @@ func (sv DesignStateValue) HashBytes() []byte {
 	return sv.Design.Bytes()
 }
 
-func GetDesignFromState(st mitumbase.State) (types.Design, error) {
+func GetDesignFromState(st base.State) (types.Design, error) {
 	v := st.Value()
 	if v == nil {
 		return types.Design{}, errors.Errorf("state value is nil")
@@ -74,7 +74,7 @@ func IsDesignStateKey(key string) bool {
 	return strings.HasPrefix(key, DIDStateKeyPrefix) && strings.HasSuffix(key, DesignStateKeySuffix)
 }
 
-func DesignStateKey(addr mitumbase.Address) string {
+func DesignStateKey(addr base.Address) string {
 	return fmt.Sprintf("%s:%s", DIDStateKey(addr), DesignStateKeySuffix)
 }
 
@@ -117,7 +117,7 @@ func (sv DataStateValue) HashBytes() []byte {
 	return sv.Data.Bytes()
 }
 
-func GetDataFromState(st mitumbase.State) (types.Data, error) {
+func GetDataFromState(st base.State) (types.Data, error) {
 	v := st.Value()
 	if v == nil {
 		return types.Data{}, errors.Errorf("State value is nil")
@@ -135,7 +135,7 @@ func IsDataStateKey(key string) bool {
 	return strings.HasPrefix(key, DIDStateKeyPrefix) && strings.HasSuffix(key, DataStateKeySuffix)
 }
 
-func DataStateKey(addr mitumbase.Address, key string) string {
+func DataStateKey(addr base.Address, key string) string {
 	return fmt.Sprintf("%s:%s:%s", DIDStateKey(addr), key, DataStateKeySuffix)
 }
 
@@ -178,7 +178,7 @@ func (sv DocumentStateValue) HashBytes() []byte {
 	return sv.Document.Bytes()
 }
 
-func GetDocumentFromState(st mitumbase.State) (types.DIDDocument, error) {
+func GetDocumentFromState(st base.State) (types.DIDDocument, error) {
 	v := st.Value()
 	if v == nil {
 		return types.DIDDocument{}, errors.Errorf("State value is nil")
@@ -196,6 +196,6 @@ func IsDocumentStateKey(key string) bool {
 	return strings.HasPrefix(key, DIDStateKeyPrefix) && strings.HasSuffix(key, DocumentStateKeySuffix)
 }
 
-func DocumentStateKey(addr mitumbase.Address, key string) string {
+func DocumentStateKey(addr base.Address, key string) string {
 	return fmt.Sprintf("%s:%s:%s", DIDStateKey(addr), key, DocumentStateKeySuffix)
 }

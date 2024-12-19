@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	digestmongo "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
-	"github.com/ProtoconNet/mitum-currency/v3/digest/util"
+	dutil "github.com/ProtoconNet/mitum-currency/v3/digest/util"
 	"github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	"github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	isaacdatabase "github.com/ProtoconNet/mitum2/isaac/database"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/logging"
 	"github.com/pkg/errors"
@@ -260,7 +260,7 @@ func (db *Database) cleanByHeight(ctx context.Context, height base.Height) error
 }
 
 /*
-func (st *Database) Manifest(h mitumutil.Hash) (base.Manifest, bool, error) {
+func (st *Database) Manifest(h util.Hash) (base.Manifest, bool, error) {
 	return st.mitum.Manifest(h)
 }
 */
@@ -288,7 +288,7 @@ func (db *Database) Manifests(
 	}
 
 	opt := options.Find().SetSort(
-		util.NewBSONFilter("height", sr).Add("index", sr).D(),
+		dutil.NewBSONFilter("height", sr).Add("index", sr).D(),
 	)
 
 	switch {
@@ -327,7 +327,7 @@ func (db *Database) OperationsByAddress(
 	reverse bool,
 	offset string,
 	limit int64,
-	callback func(mitumutil.Hash /* fact hash */, OperationValue) (bool, error),
+	callback func(util.Hash /* fact hash */, OperationValue) (bool, error),
 ) error {
 	filter, err := buildOperationsFilterByAddress(address, offset, reverse)
 	if err != nil {
@@ -340,7 +340,7 @@ func (db *Database) OperationsByAddress(
 	}
 
 	opt := options.Find().SetSort(
-		util.NewBSONFilter("height", sr).Add("index", sr).D(),
+		dutil.NewBSONFilter("height", sr).Add("index", sr).D(),
 	)
 
 	switch {
@@ -381,18 +381,18 @@ func (db *Database) OperationsByAddress(
 // Operation returns operation.Operation. If load is false, just returns nil
 // Operation.
 func (db *Database) Operation(
-	h mitumutil.Hash, /* fact hash */
+	h util.Hash, /* fact hash */
 	load bool,
 ) (OperationValue, bool /* exists */, error) {
 	if !load {
-		exists, err := db.digestDB.Client().Exists(defaultColNameOperation, util.NewBSONFilter("fact", h).D())
+		exists, err := db.digestDB.Client().Exists(defaultColNameOperation, dutil.NewBSONFilter("fact", h).D())
 		return OperationValue{}, exists, err
 	}
 
 	var va OperationValue
 	if err := db.digestDB.Client().GetByFilter(
 		defaultColNameOperation,
-		util.NewBSONFilter("fact", h).D(),
+		dutil.NewBSONFilter("fact", h).D(),
 		func(res *mongo.SingleResult) error {
 			if !load {
 				return nil
@@ -422,7 +422,7 @@ func (db *Database) Operations(
 	load bool,
 	reverse bool,
 	limit int64,
-	callback func(mitumutil.Hash /* fact hash */, OperationValue, int64) (bool, error),
+	callback func(util.Hash /* fact hash */, OperationValue, int64) (bool, error),
 ) error {
 	sr := 1
 	if reverse {
@@ -430,7 +430,7 @@ func (db *Database) Operations(
 	}
 
 	opt := options.Find().SetSort(
-		util.NewBSONFilter("height", sr).Add("index", sr).D(),
+		dutil.NewBSONFilter("height", sr).Add("index", sr).D(),
 	)
 
 	switch {
@@ -476,7 +476,7 @@ func (db *Database) Operations(
 // OperationsByHash returns operation.Operations by order, height and index.
 func (db *Database) OperationsByHash(
 	filter bson.M,
-	callback func(mitumutil.Hash /* fact hash */, OperationValue, int64) (bool, error),
+	callback func(util.Hash /* fact hash */, OperationValue, int64) (bool, error),
 ) error {
 	count, err := db.digestDB.Client().Count(context.Background(), defaultColNameOperation, bson.D{})
 	if err != nil {
@@ -503,7 +503,7 @@ func (db *Database) Account(a base.Address) (AccountValue, bool /* exists */, er
 	var rs AccountValue
 	if err := db.digestDB.Client().GetByFilter(
 		defaultColNameAccount,
-		util.NewBSONFilter("address", a.String()).D(),
+		dutil.NewBSONFilter("address", a.String()).D(),
 		func(res *mongo.SingleResult) error {
 			i, err := LoadAccountValue(res.Decode, db.digestDB.Encoders())
 			if err != nil {
@@ -513,10 +513,10 @@ func (db *Database) Account(a base.Address) (AccountValue, bool /* exists */, er
 
 			return nil
 		},
-		options.FindOne().SetSort(util.NewBSONFilter("height", -1).D()),
+		options.FindOne().SetSort(dutil.NewBSONFilter("height", -1).D()),
 	); err != nil {
 		//); err != nil {
-		//	if errors.Is(err, mitumutil.NewIDError("not found")) {
+		//	if errors.Is(err, util.NewIDError("not found")) {
 		//		return rs, false, nil
 		//	}
 
@@ -624,7 +624,7 @@ func (db *Database) balance(a base.Address) ([]types.Amount, base.Height, error)
 
 	amm := map[types.CurrencyID]types.Amount{}
 	for {
-		filter := util.NewBSONFilter("address", a.String())
+		filter := dutil.NewBSONFilter("address", a.String())
 
 		var q primitive.D
 		if len(cids) < 1 {
@@ -646,9 +646,9 @@ func (db *Database) balance(a base.Address) ([]types.Amount, base.Height, error)
 
 				return nil
 			},
-			options.FindOne().SetSort(util.NewBSONFilter("height", -1).D()),
+			options.FindOne().SetSort(dutil.NewBSONFilter("height", -1).D()),
 		); err != nil {
-			if err.Error() == mitumutil.NewIDError("mongo: no documents in result").Error() {
+			if err.Error() == util.NewIDError("mongo: no documents in result").Error() {
 				break
 			}
 
@@ -681,11 +681,11 @@ func (db *Database) balance(a base.Address) ([]types.Amount, base.Height, error)
 func (db *Database) contractAccountStatus(a base.Address) (types.ContractAccountStatus, base.Height, error) {
 	lastHeight := base.NilHeight
 
-	filter := util.NewBSONFilter("address", a)
+	filter := dutil.NewBSONFilter("address", a)
 	filter.Add("contract", true)
 
 	opt := options.FindOne().SetSort(
-		util.NewBSONFilter("height", -1).D(),
+		dutil.NewBSONFilter("height", -1).D(),
 	)
 	var sta base.State
 	if err := db.digestDB.Client().GetByFilter(
@@ -722,7 +722,7 @@ func (db *Database) currencies() ([]string, error) {
 	var cids []string
 
 	for {
-		filter := util.EmptyBSONFilter()
+		filter := dutil.EmptyBSONFilter()
 
 		var q primitive.D
 		if len(cids) < 1 {
@@ -732,7 +732,7 @@ func (db *Database) currencies() ([]string, error) {
 		}
 
 		opt := options.FindOne().SetSort(
-			util.NewBSONFilter("height", -1).D(),
+			dutil.NewBSONFilter("height", -1).D(),
 		)
 		var sta base.State
 		if err := db.digestDB.Client().GetByFilter(
@@ -771,7 +771,7 @@ func (db *Database) currencies() ([]string, error) {
 }
 
 func (db *Database) ManifestByHeight(height base.Height) (base.Manifest, uint64, string, string, uint64, error) {
-	q := util.NewBSONFilter("height", height).D()
+	q := dutil.NewBSONFilter("height", height).D()
 
 	var m base.Manifest
 	var operations, round uint64
@@ -792,18 +792,18 @@ func (db *Database) ManifestByHeight(height base.Height) (base.Manifest, uint64,
 			return nil
 		},
 	); err != nil {
-		return nil, 0, "", "", 0, mitumutil.ErrNotFound.WithMessage(err, "block manifest")
+		return nil, 0, "", "", 0, util.ErrNotFound.WithMessage(err, "block manifest")
 	}
 
 	if m != nil {
 		return m, operations, confirmed, proposer, round, nil
 	} else {
-		return nil, 0, "", "", 0, mitumutil.ErrNotFound.Wrap(errors.Errorf("Block manifest"))
+		return nil, 0, "", "", 0, util.ErrNotFound.Wrap(errors.Errorf("Block manifest"))
 	}
 }
 
-func (db *Database) ManifestByHash(hash mitumutil.Hash) (base.Manifest, uint64, string, string, uint64, error) {
-	q := util.NewBSONFilter("block", hash).D()
+func (db *Database) ManifestByHash(hash util.Hash) (base.Manifest, uint64, string, string, uint64, error) {
+	q := dutil.NewBSONFilter("block", hash).D()
 
 	var m base.Manifest
 	var operations, round uint64
@@ -824,21 +824,21 @@ func (db *Database) ManifestByHash(hash mitumutil.Hash) (base.Manifest, uint64, 
 			return nil
 		},
 	); err != nil {
-		return nil, 0, "", "", 0, mitumutil.ErrNotFound.WithMessage(err, "block manifest")
+		return nil, 0, "", "", 0, util.ErrNotFound.WithMessage(err, "block manifest")
 	}
 
 	if m != nil {
 		return m, operations, confirmed, proposer, round, nil
 	} else {
-		return nil, 0, "", "", 0, mitumutil.ErrNotFound.Errorf("Block manifest")
+		return nil, 0, "", "", 0, util.ErrNotFound.Errorf("Block manifest")
 	}
 }
 
 func (db *Database) currency(cid string) (types.CurrencyDesign, base.State, error) {
-	q := util.NewBSONFilter("currency", cid).D()
+	q := dutil.NewBSONFilter("currency", cid).D()
 
 	opt := options.FindOne().SetSort(
-		util.NewBSONFilter("height", -1).D(),
+		dutil.NewBSONFilter("height", -1).D(),
 	)
 	var sta base.State
 	if err := db.digestDB.Client().GetByFilter(
@@ -854,7 +854,7 @@ func (db *Database) currency(cid string) (types.CurrencyDesign, base.State, erro
 		},
 		opt,
 	); err != nil {
-		return types.CurrencyDesign{}, nil, mitumutil.ErrNotFound.WithMessage(err, "currency in handleCurrency")
+		return types.CurrencyDesign{}, nil, util.ErrNotFound.WithMessage(err, "currency in handleCurrency")
 	}
 
 	if sta != nil {
@@ -923,7 +923,7 @@ func (db *Database) partialTopHeightByPublickey(as []string) (base.Height, error
 			return false, nil
 		},
 		options.Find().
-			SetSort(util.NewBSONFilter("height", -1).D()).
+			SetSort(dutil.NewBSONFilter("height", -1).D()).
 			SetLimit(1),
 	)
 
@@ -1014,7 +1014,7 @@ func (db *Database) filterAccountByPublickey(
 				return true, nil
 			}
 		},
-		options.Find().SetSort(util.NewBSONFilter("address", 1).Add("height", -1).D()),
+		options.Find().SetSort(dutil.NewBSONFilter("address", 1).Add("height", -1).D()),
 	); err != nil {
 		return false, err
 	}

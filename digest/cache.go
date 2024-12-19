@@ -8,8 +8,8 @@ import (
 	"net/textproto"
 	"time"
 
-	"github.com/ProtoconNet/mitum-currency/v3/digest/util"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	dutil "github.com/ProtoconNet/mitum-currency/v3/digest/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/valuehash"
 	"github.com/bluele/gcache"
 	"github.com/pkg/errors"
@@ -19,7 +19,7 @@ import (
 
 var (
 	DefaultCacheExpire = time.Hour
-	SkipCacheError     = mitumutil.NewIDError("skip cache")
+	SkipCacheError     = util.NewIDError("skip cache")
 )
 
 type Cache interface {
@@ -28,7 +28,7 @@ type Cache interface {
 }
 
 func NewCacheFromURI(uri string) (Cache, error) {
-	u, err := util.ParseURL(uri, false)
+	u, err := dutil.ParseURL(uri, false)
 	if err != nil {
 		return nil, errors.Wrapf(err, "invalid uri of cache, %v", uri)
 	}
@@ -100,7 +100,7 @@ func (mc *Memcached) Set(key string, b []byte, expire time.Duration) error {
 type DummyCache struct{}
 
 func (DummyCache) Get(string) ([]byte, error) {
-	return nil, mitumutil.NewIDError("not found")
+	return nil, util.NewIDError("not found")
 }
 
 func (DummyCache) Set(string, []byte, time.Duration) error {

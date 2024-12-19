@@ -96,12 +96,7 @@ func (opp *UpdateRecipientProcessor) Process( // nolint:dupl
 	_ context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringError("process UpdateRecipient")
-
-	fact, ok := op.Fact().(UpdateRecipientFact)
-	if !ok {
-		return nil, nil, e.Errorf("expected UpdateRecipientFact, not %T", op.Fact())
-	}
+	fact, _ := op.Fact().(UpdateRecipientFact)
 
 	var ctAccSt base.State
 	var err error

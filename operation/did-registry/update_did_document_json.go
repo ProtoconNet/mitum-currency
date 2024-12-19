@@ -6,16 +6,16 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
 	dtypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/pkg/errors"
 )
 
 type UpdateDIDDocumentFactJSONMarshaler struct {
-	mitumbase.BaseFactJSONMarshaler
-	Sender   mitumbase.Address  `json:"sender"`
-	Contract mitumbase.Address  `json:"contract"`
+	base.BaseFactJSONMarshaler
+	Sender   base.Address       `json:"sender"`
+	Contract base.Address       `json:"contract"`
 	DID      string             `json:"did"`
 	Document dtypes.DIDDocument `json:"document"`
 	Currency types.CurrencyID   `json:"currency"`
@@ -33,7 +33,7 @@ func (fact UpdateDIDDocumentFact) MarshalJSON() ([]byte, error) {
 }
 
 type UpdateDIDDocumentFactJSONUnmarshaler struct {
-	mitumbase.BaseFactJSONUnmarshaler
+	base.BaseFactJSONUnmarshaler
 	Sender   string          `json:"sender"`
 	Contract string          `json:"contract"`
 	DID      string          `json:"did"`

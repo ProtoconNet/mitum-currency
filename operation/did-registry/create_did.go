@@ -3,8 +3,8 @@ package did_registry
 import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/ProtoconNet/mitum2/util/valuehash"
@@ -17,20 +17,20 @@ var (
 )
 
 type CreateDIDFact struct {
-	mitumbase.BaseFact
-	sender          mitumbase.Address
-	contract        mitumbase.Address
+	base.BaseFact
+	sender          base.Address
+	contract        base.Address
 	authType        string
-	publicKey       mitumbase.Publickey
+	publicKey       base.Publickey
 	serviceType     string
 	serviceEndpoint string
-	currency        currencytypes.CurrencyID
+	currency        types.CurrencyID
 }
 
 func NewCreateDIDFact(
-	token []byte, sender, contract mitumbase.Address,
-	authType string, publicKey mitumbase.Publickey, serviceType, serviceEndpoint string, currency currencytypes.CurrencyID) CreateDIDFact {
-	bf := mitumbase.NewBaseFact(CreateDIDFactHint, token)
+	token []byte, sender, contract base.Address,
+	authType string, publicKey base.Publickey, serviceType, serviceEndpoint string, currency types.CurrencyID) CreateDIDFact {
+	bf := base.NewBaseFact(CreateDIDFactHint, token)
 	fact := CreateDIDFact{
 		BaseFact:        bf,
 		sender:          sender,
@@ -89,19 +89,19 @@ func (fact CreateDIDFact) Bytes() []byte {
 	)
 }
 
-func (fact CreateDIDFact) Token() mitumbase.Token {
+func (fact CreateDIDFact) Token() base.Token {
 	return fact.BaseFact.Token()
 }
 
-func (fact CreateDIDFact) Sender() mitumbase.Address {
+func (fact CreateDIDFact) Sender() base.Address {
 	return fact.sender
 }
 
-func (fact CreateDIDFact) Signer() mitumbase.Address {
+func (fact CreateDIDFact) Signer() base.Address {
 	return fact.sender
 }
 
-func (fact CreateDIDFact) Contract() mitumbase.Address {
+func (fact CreateDIDFact) Contract() base.Address {
 	return fact.contract
 }
 
@@ -109,7 +109,7 @@ func (fact CreateDIDFact) AuthType() string {
 	return fact.authType
 }
 
-func (fact CreateDIDFact) PublicKey() mitumbase.Publickey {
+func (fact CreateDIDFact) PublicKey() base.Publickey {
 	return fact.publicKey
 }
 
@@ -121,33 +121,39 @@ func (fact CreateDIDFact) ServiceEndpoint() string {
 	return fact.serviceEndpoint
 }
 
-func (fact CreateDIDFact) Currency() currencytypes.CurrencyID {
+func (fact CreateDIDFact) Currency() types.CurrencyID {
 	return fact.currency
 }
 
-func (fact CreateDIDFact) Addresses() ([]mitumbase.Address, error) {
-	as := []mitumbase.Address{fact.sender}
+func (fact CreateDIDFact) Addresses() ([]base.Address, error) {
+	as := []base.Address{fact.sender}
 
 	return as, nil
 }
 
-func (fact CreateDIDFact) FeeBase() map[currencytypes.CurrencyID][]common.Big {
-	required := make(map[currencytypes.CurrencyID][]common.Big)
+func (fact CreateDIDFact) FeeBase() map[types.CurrencyID][]common.Big {
+	required := make(map[types.CurrencyID][]common.Big)
 	required[fact.Currency()] = []common.Big{common.ZeroBig}
 
 	return required
 }
 
-func (fact CreateDIDFact) FeePayer() mitumbase.Address {
+func (fact CreateDIDFact) FeePayer() base.Address {
 	return fact.sender
 }
 
-func (fact CreateDIDFact) FactUser() mitumbase.Address {
+func (fact CreateDIDFact) SendRequired() map[types.CurrencyID]common.Big {
+	required := make(map[types.CurrencyID]common.Big)
+
+	return required
+}
+
+func (fact CreateDIDFact) FactUser() base.Address {
 	return fact.sender
 }
 
-func (fact CreateDIDFact) ActiveContract() mitumbase.Address {
-	return fact.contract
+func (fact CreateDIDFact) ActiveContract() []base.Address {
+	return []base.Address{fact.contract}
 }
 
 type CreateDID struct {

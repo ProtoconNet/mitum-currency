@@ -4,20 +4,20 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
 type CreateDIDFactJSONMarshaler struct {
-	mitumbase.BaseFactJSONMarshaler
-	Sender          mitumbase.Address `json:"sender"`
-	Contract        mitumbase.Address `json:"contract"`
-	AuthType        string            `json:"authType"`
-	PublicKey       string            `json:"publicKey"`
-	ServiceType     string            `json:"serviceType"`
-	ServiceEndpoint string            `json:"serviceEndpoints"`
-	Currency        types.CurrencyID  `json:"currency"`
+	base.BaseFactJSONMarshaler
+	Sender          base.Address     `json:"sender"`
+	Contract        base.Address     `json:"contract"`
+	AuthType        string           `json:"authType"`
+	PublicKey       string           `json:"publicKey"`
+	ServiceType     string           `json:"serviceType"`
+	ServiceEndpoint string           `json:"serviceEndpoints"`
+	Currency        types.CurrencyID `json:"currency"`
 }
 
 func (fact CreateDIDFact) MarshalJSON() ([]byte, error) {
@@ -34,7 +34,7 @@ func (fact CreateDIDFact) MarshalJSON() ([]byte, error) {
 }
 
 type CreateDIDFactJSONUnmarshaler struct {
-	mitumbase.BaseFactJSONUnmarshaler
+	base.BaseFactJSONUnmarshaler
 	Sender          string `json:"sender"`
 	Contract        string `json:"contract"`
 	AuthType        string `json:"authType"`
@@ -52,7 +52,7 @@ func (fact *CreateDIDFact) DecodeJSON(b []byte, enc encoder.Encoder) error {
 
 	fact.BaseFact.SetJSONUnmarshaler(u.BaseFactJSONUnmarshaler)
 
-	pubKey, err := mitumbase.DecodePublickeyFromString(u.PublicKey, enc)
+	pubKey, err := base.DecodePublickeyFromString(u.PublicKey, enc)
 	if err != nil {
 		return common.DecorateError(err, common.ErrDecodeJson, *fact)
 	}

@@ -1,7 +1,7 @@
 package digest
 
 import (
-	mongodbstorage "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
+	mongodbst "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -27,7 +27,7 @@ func LoadOperation(decoder func(interface{}) error, encs *encoder.Encoders) (Ope
 		return OperationValue{}, err
 	}
 
-	if _, hinter, err := mongodbstorage.LoadDataFromDoc(b, encs); err != nil {
+	if _, hinter, err := mongodbst.LoadDataFromDoc(b, encs); err != nil {
 		return OperationValue{}, err
 	} else if va, ok := hinter.(OperationValue); !ok {
 		return OperationValue{}, errors.Errorf("Not OperationValue: %T", hinter)
@@ -42,7 +42,7 @@ func LoadAccountValue(decoder func(interface{}) error, encs *encoder.Encoders) (
 		return AccountValue{}, err
 	}
 
-	_, hinter, err := mongodbstorage.LoadDataFromDoc(b, encs)
+	_, hinter, err := mongodbst.LoadDataFromDoc(b, encs)
 	if err != nil {
 		return AccountValue{}, err
 	}
@@ -61,7 +61,7 @@ func LoadBalance(decoder func(interface{}) error, encs *encoder.Encoders) (base.
 		return nil, err
 	}
 
-	if _, hinter, err := mongodbstorage.LoadDataFromDoc(b, encs); err != nil {
+	if _, hinter, err := mongodbst.LoadDataFromDoc(b, encs); err != nil {
 		return nil, err
 	} else if st, ok := hinter.(base.State); !ok {
 		return nil, errors.Errorf("Not base.State: %T", hinter)
@@ -77,7 +77,7 @@ func LoadCurrency(decoder func(interface{}) error, encs *encoder.Encoders) (base
 		return nil, err
 	}
 
-	if _, hinter, err := mongodbstorage.LoadDataFromDoc(b, encs); err != nil {
+	if _, hinter, err := mongodbst.LoadDataFromDoc(b, encs); err != nil {
 		return nil, err
 	} else if st, ok := hinter.(base.State); !ok {
 		return nil, errors.Errorf("Not base.State: %T", hinter)
@@ -93,7 +93,7 @@ func LoadContractAccountStatus(decoder func(interface{}) error, encs *encoder.En
 		return nil, err
 	}
 
-	if _, hinter, err := mongodbstorage.LoadDataFromDoc(b, encs); err != nil {
+	if _, hinter, err := mongodbst.LoadDataFromDoc(b, encs); err != nil {
 		return nil, err
 	} else if st, ok := hinter.(base.State); !ok {
 		return nil, errors.Errorf("Not base.State: %T", hinter)
@@ -109,7 +109,7 @@ func LoadManifest(decoder func(interface{}) error, encs *encoder.Encoders) (base
 		return nil, 0, "", "", 0, err
 	}
 
-	if _, hinter, operations, confirmedAt, proposer, round, err := mongodbstorage.LoadManifestDataFromDoc(b, encs); err != nil {
+	if _, hinter, operations, confirmedAt, proposer, round, err := mongodbst.LoadManifestDataFromDoc(b, encs); err != nil {
 		return nil, 0, "", "", 0, err
 	} else if m, ok := hinter.(base.Manifest); !ok {
 		return nil, 0, "", "", 0, errors.Errorf("Not base.Manifest: %T", hinter)
@@ -125,7 +125,7 @@ func LoadState(decoder func(interface{}) error, encs *encoder.Encoders) (base.St
 		return nil, err
 	}
 
-	if _, hinter, err := mongodbstorage.LoadDataFromDoc(b, encs); err != nil {
+	if _, hinter, err := mongodbst.LoadDataFromDoc(b, encs); err != nil {
 		return nil, err
 	} else if st, ok := hinter.(base.State); !ok {
 		return nil, errors.Errorf("Not base.State: %T", hinter)

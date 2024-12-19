@@ -3,14 +3,14 @@ package digest
 import (
 	"time"
 
-	mongodbstorage "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
+	mongodbst "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
 type ManifestDoc struct {
-	mongodbstorage.BaseDoc
+	mongodbst.BaseDoc
 	va          base.Manifest
 	operations  []base.Operation
 	height      base.Height
@@ -30,7 +30,7 @@ func NewManifestDoc(
 	round base.Round,
 	gitInfo string,
 ) (ManifestDoc, error) {
-	b, err := mongodbstorage.NewBaseDoc(nil, manifest, enc)
+	b, err := mongodbst.NewBaseDoc(nil, manifest, enc)
 	if err != nil {
 		return ManifestDoc{}, err
 	}

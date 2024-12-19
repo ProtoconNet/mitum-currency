@@ -4,14 +4,14 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"time"
 
-	mongodbstorage "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
+	mongodbst "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
 type OperationDoc struct {
-	mongodbstorage.BaseDoc
+	mongodbst.BaseDoc
 	va        OperationValue
 	op        base.Operation
 	addresses []string
@@ -40,7 +40,7 @@ func NewOperationDoc(
 	}
 
 	va := NewOperationValue(op, height, confirmedAt, inState, reason, index)
-	b, err := mongodbstorage.NewBaseDoc(nil, va, enc)
+	b, err := mongodbst.NewBaseDoc(nil, va, enc)
 	if err != nil {
 		return OperationDoc{}, err
 	}

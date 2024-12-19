@@ -3,7 +3,7 @@ package cmds
 import (
 	"context"
 	"github.com/ProtoconNet/mitum-currency/v3/digest"
-	mongodbstorage "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
+	mongodbst "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
 	"github.com/ProtoconNet/mitum2/isaac"
 	isaacdatabase "github.com/ProtoconNet/mitum2/isaac/database"
 	"github.com/ProtoconNet/mitum2/launch"
@@ -47,7 +47,7 @@ func processMongodbDatabase(ctx context.Context, l digest.YamlDigestDesign) (con
 		return ctx, err
 	}
 
-	st, err := mongodbstorage.NewDatabaseFromURI(conf.URI().String(), encs)
+	st, err := mongodbst.NewDatabaseFromURI(conf.URI().String(), encs)
 	if err != nil {
 		return ctx, err
 	}
@@ -80,7 +80,7 @@ func processMongodbDatabase(ctx context.Context, l digest.YamlDigestDesign) (con
 	return context.WithValue(ctx, digest.ContextValueDigestDatabase, dst), nil
 }
 
-func loadDigestDatabase(mst *isaacdatabase.Center, st *mongodbstorage.Database, readonly bool) (*digest.Database, error) {
+func loadDigestDatabase(mst *isaacdatabase.Center, st *mongodbst.Database, readonly bool) (*digest.Database, error) {
 	var dst *digest.Database
 	if readonly {
 		s, err := digest.NewReadonlyDatabase(mst, st)

@@ -1,11 +1,11 @@
 package digest
 
 import (
-	utilc "github.com/ProtoconNet/mitum-currency/v3/digest/util"
+	dutil "github.com/ProtoconNet/mitum-currency/v3/digest/util"
 	state "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
-	types "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
-	utilm "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,11 +18,11 @@ var (
 )
 
 func DIDDesign(st *Database, contract string) (types.Design, base.State, error) {
-	filter := utilc.NewBSONFilter("contract", contract)
+	filter := dutil.NewBSONFilter("contract", contract)
 	q := filter.D()
 
 	opt := options.FindOne().SetSort(
-		utilc.NewBSONFilter("height", -1).D(),
+		dutil.NewBSONFilter("height", -1).D(),
 	)
 	var sta base.State
 	if err := st.MongoClient().GetByFilter(
@@ -38,7 +38,7 @@ func DIDDesign(st *Database, contract string) (types.Design, base.State, error) 
 		},
 		opt,
 	); err != nil {
-		return types.Design{}, nil, utilm.ErrNotFound.WithMessage(err, "storage design by contract account %v", contract)
+		return types.Design{}, nil, util.ErrNotFound.WithMessage(err, "storage design by contract account %v", contract)
 	}
 
 	if sta != nil {
@@ -53,12 +53,12 @@ func DIDDesign(st *Database, contract string) (types.Design, base.State, error) 
 }
 
 func DIDData(db *Database, contract, key string) (*types.Data, base.State, error) {
-	filter := utilc.NewBSONFilter("contract", contract)
+	filter := dutil.NewBSONFilter("contract", contract)
 	filter = filter.Add("method_specific_id", key)
 	q := filter.D()
 
 	opt := options.FindOne().SetSort(
-		utilc.NewBSONFilter("height", -1).D(),
+		dutil.NewBSONFilter("height", -1).D(),
 	)
 	var data *types.Data
 	var sta base.State
@@ -80,7 +80,7 @@ func DIDData(db *Database, contract, key string) (*types.Data, base.State, error
 		},
 		opt,
 	); err != nil {
-		return nil, nil, utilm.ErrNotFound.WithMessage(
+		return nil, nil, util.ErrNotFound.WithMessage(
 			err, "DID data for public key %s in contract account %s", key, contract)
 	}
 
@@ -92,12 +92,12 @@ func DIDData(db *Database, contract, key string) (*types.Data, base.State, error
 }
 
 func DIDDocument(db *Database, contract, key string) (*types.DIDDocument, base.State, error) {
-	filter := utilc.NewBSONFilter("contract", contract)
+	filter := dutil.NewBSONFilter("contract", contract)
 	filter = filter.Add("did", key)
 	q := filter.D()
 
 	opt := options.FindOne().SetSort(
-		utilc.NewBSONFilter("height", -1).D(),
+		dutil.NewBSONFilter("height", -1).D(),
 	)
 	var document *types.DIDDocument
 	var sta base.State
@@ -119,7 +119,7 @@ func DIDDocument(db *Database, contract, key string) (*types.DIDDocument, base.S
 		},
 		opt,
 	); err != nil {
-		return nil, nil, utilm.ErrNotFound.WithMessage(
+		return nil, nil, util.ErrNotFound.WithMessage(
 			err, "DID document for DID %s in contract account %s", key, contract)
 	}
 

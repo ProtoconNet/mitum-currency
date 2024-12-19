@@ -247,3 +247,15 @@ func ParseStateKey(key string, Prefix string, expected int) ([]string, error) {
 		return parsedKey, nil
 	}
 }
+
+func ParseStateKeyBySuffix(key string, suffix string, expected int) ([]string, error) {
+	parsedKey := strings.Split(key, ":")
+	if parsedKey[len(parsedKey)-1] != suffix {
+		return nil, errors.Errorf("State Key, %v not include Suffix, %s", parsedKey, suffix)
+	}
+	if len(parsedKey) < expected {
+		return nil, errors.Errorf("Parsed State Key length under %v", expected)
+	} else {
+		return parsedKey, nil
+	}
+}

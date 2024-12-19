@@ -9,9 +9,9 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extension"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v3/operation/isaac"
-	statecurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	statedid "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
-	stateextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	ccstate "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	dstate "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
+	cestate "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/launch"
@@ -82,11 +82,11 @@ var AddedHinters = []encoder.DecodeDetail{
 	{Hint: isaacoperation.SuffrageJoinHint, Instance: isaacoperation.SuffrageJoin{}},
 	{Hint: isaacoperation.NetworkPolicyHint, Instance: isaacoperation.NetworkPolicy{}},
 
-	{Hint: statecurrency.AccountStateValueHint, Instance: statecurrency.AccountStateValue{}},
-	{Hint: statecurrency.BalanceStateValueHint, Instance: statecurrency.BalanceStateValue{}},
-	{Hint: statecurrency.DesignStateValueHint, Instance: statecurrency.DesignStateValue{}},
+	{Hint: ccstate.AccountStateValueHint, Instance: ccstate.AccountStateValue{}},
+	{Hint: ccstate.BalanceStateValueHint, Instance: ccstate.BalanceStateValue{}},
+	{Hint: ccstate.DesignStateValueHint, Instance: ccstate.DesignStateValue{}},
 
-	{Hint: stateextension.ContractAccountStateValueHint, Instance: stateextension.ContractAccountStateValue{}},
+	{Hint: cestate.ContractAccountStateValueHint, Instance: cestate.ContractAccountStateValue{}},
 
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
 	{Hint: digest.OperationValueHint, Instance: digest.OperationValue{}},
@@ -102,9 +102,9 @@ var AddedHinters = []encoder.DecodeDetail{
 	{Hint: did_registry.CreateDIDHint, Instance: did_registry.CreateDID{}},
 	{Hint: did_registry.UpdateDIDDocumentHint, Instance: did_registry.UpdateDIDDocument{}},
 	{Hint: did_registry.RegisterModelHint, Instance: did_registry.RegisterModel{}},
-	{Hint: statedid.DataStateValueHint, Instance: statedid.DataStateValue{}},
-	{Hint: statedid.DesignStateValueHint, Instance: statedid.DesignStateValue{}},
-	{Hint: statedid.DocumentStateValueHint, Instance: statedid.DocumentStateValue{}},
+	{Hint: dstate.DataStateValueHint, Instance: dstate.DataStateValue{}},
+	{Hint: dstate.DesignStateValueHint, Instance: dstate.DesignStateValue{}},
+	{Hint: dstate.DocumentStateValueHint, Instance: dstate.DocumentStateValue{}},
 }
 
 var AddedSupportedHinters = []encoder.DecodeDetail{

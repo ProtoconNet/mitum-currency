@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/ProtoconNet/mitum2/base"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/gorilla/mux"
 )
 
@@ -51,7 +51,7 @@ func (hd *Handlers) handleBlockInGroup(vars map[string]string) ([]byte, error) {
 	} else if s, found := vars["hash"]; found {
 		h, err := parseHashFromPath(s)
 		if err != nil {
-			return nil, mitumutil.NewIDError("Bad request").Errorf("Invalid hash for block by hash: %v", err)
+			return nil, util.NewIDError("Bad request").Errorf("Invalid hash for block by hash: %v", err)
 		}
 
 		i, err := hd.buildBlockHalByHash(h)
@@ -106,7 +106,7 @@ func (hd *Handlers) buildBlockHalByHeight(height base.Height) (Hal, error) {
 	return hal, nil
 }
 
-func (hd *Handlers) buildBlockHalByHash(h mitumutil.Hash) (Hal, error) {
+func (hd *Handlers) buildBlockHalByHash(h util.Hash) (Hal, error) {
 	i, err := hd.combineURL(HandlerPathBlockByHash, "hash", h.String())
 	if err != nil {
 		return nil, err

@@ -5,23 +5,24 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"net"
+	"net/http"
+	"sync"
+	"time"
+	
 	"github.com/ProtoconNet/mitum-currency/v3/digest/network"
-	"github.com/ProtoconNet/mitum-currency/v3/digest/util"
+	dutil "github.com/ProtoconNet/mitum-currency/v3/digest/util"
 	"github.com/ProtoconNet/mitum2/base"
 	isaacnetwork "github.com/ProtoconNet/mitum2/isaac/network"
 	"github.com/ProtoconNet/mitum2/network/quicmemberlist"
 	"github.com/ProtoconNet/mitum2/network/quicstream"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/logging"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"golang.org/x/net/http2"
-	"net"
-	"net/http"
-	"sync"
-	"time"
 )
 
 type RequestWrapper struct {
@@ -32,7 +33,7 @@ type RequestWrapper struct {
 type HTTP2Server struct {
 	sync.RWMutex
 	*logging.Logging
-	*mitumutil.ContextDaemon
+	*util.ContextDaemon
 	bind             string
 	host             string
 	networkID        base.NetworkID
@@ -50,7 +51,7 @@ type HTTP2Server struct {
 func NewHTTP2Server(
 	bind, host string, certs []tls.Certificate, encs *encoder.Encoders, networkID base.NetworkID,
 ) (*HTTP2Server, error) {
-	if err := util.CheckBindIsOpen("tcp", bind, time.Second*1); err != nil {
+	if err := dutil.CheckBindIsOpen("tcp", bind, time.Second*1); err != nil {
 		return nil, errors.Wrap(err, "open digest server")
 	}
 
@@ -80,7 +81,7 @@ func NewHTTP2Server(
 	}
 	sv.srv = srv
 
-	sv.ContextDaemon = mitumutil.NewContextDaemon(sv.start)
+	sv.ContextDaemon = util.NewContextDaemon(sv.start)
 
 	return sv, nil
 }

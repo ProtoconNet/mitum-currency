@@ -6,7 +6,7 @@ import (
 
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	dutil "github.com/ProtoconNet/mitum2/util"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
@@ -60,7 +60,7 @@ func (hd *Handlers) handleManifestByHash(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var h mitumutil.Hash
+	var h util.Hash
 	h, err := parseHashFromPath(mux.Vars(r)["hash"])
 	if err != nil {
 		HTTP2ProblemWithError(w, errors.Wrap(err, "invalid hash for manifest by hash"), http.StatusBadRequest)
@@ -77,7 +77,7 @@ func (hd *Handlers) handleManifestByHash(w http.ResponseWriter, r *http.Request)
 }
 
 func (hd *Handlers) handleManifestByHashInGroup(
-	hash mitumutil.Hash,
+	hash util.Hash,
 ) ([]byte, error) {
 	m, ops, confirmed, proposer, round, err := hd.database.ManifestByHash(hash)
 	if err != nil {
@@ -224,7 +224,7 @@ func (hd *Handlers) handleManifestsInGroup(
 	); err != nil {
 		return nil, false, err
 	} else if len(vas) < 1 {
-		return nil, false, util.ErrNotFound.Errorf("manifests not found")
+		return nil, false, dutil.ErrNotFound.Errorf("manifests not found")
 	}
 
 	i, err := hd.buildManifestsHAL(vas, offset, reverse)

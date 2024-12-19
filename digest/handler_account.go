@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/ProtoconNet/mitum2/base"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -37,7 +37,7 @@ func (hd *Handlers) handleAccount(w http.ResponseWriter, r *http.Request) {
 		return hd.handleAccountInGroup(address)
 	}); err != nil {
 		//if errors.Is(err, mongo.ErrNoDocuments) {
-		//	err = mitumutil.ErrNotFound.Errorf("account, %v in handleAccount", address.String())
+		//	err = util.ErrNotFound.Errorf("account, %v in handleAccount", address.String())
 		//} else {
 		//	hd.Log().Err(err).Str("address", address.String()).Msg("get account")
 		//}
@@ -66,7 +66,7 @@ func (hd *Handlers) handleAccountInGroup(address base.Address) (interface{}, err
 		}
 		return hd.enc.Marshal(hal)
 	//case !found:
-	//return nil, mitumutil.ErrNotFound
+	//return nil, util.ErrNotFound
 	default:
 		hal, err := hd.buildAccountHal(va)
 		if err != nil {
@@ -180,7 +180,7 @@ func (hd *Handlers) handleAccountOperationsInGroup(
 	var vas []Hal
 	if err := hd.database.OperationsByAddress(
 		address, true, reverse, offset, limit,
-		func(_ mitumutil.Hash, va OperationValue) (bool, error) {
+		func(_ util.Hash, va OperationValue) (bool, error) {
 			hal, err := hd.buildOperationHal(va)
 			if err != nil {
 				return false, err
@@ -193,7 +193,7 @@ func (hd *Handlers) handleAccountOperationsInGroup(
 		return nil, false, err
 	}
 	//} else if len(vas) < 1 {
-	//	return nil, false, mitumutil.ErrNotFound.Errorf("operations in handleAccountsOperations")
+	//	return nil, false, util.ErrNotFound.Errorf("operations in handleAccountsOperations")
 	//}
 
 	i, err := hd.buildAccountOperationsHal(address, vas, offset, reverse)

@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/ProtoconNet/mitum-currency/v3/state"
-	statecurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	ccstate "github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
 
 	"github.com/ProtoconNet/mitum2/base"
@@ -98,7 +98,7 @@ func (opp *UpdateCurrencyProcessor) PreProcess(
 			common.ErrMPreProcess.Wrap(common.ErrMTypeMismatch).Errorf("expected UpdateCurrencyFact, not %T", op.Fact())), nil
 	}
 
-	err := state.CheckExistsState(statecurrency.DesignStateKey(fact.Currency()), getStateFunc)
+	err := state.CheckExistsState(ccstate.DesignStateKey(fact.Currency()), getStateFunc)
 	if err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.Wrap(common.ErrMCurrencyNF).Errorf("currency id %q", fact.Currency())), nil
@@ -111,7 +111,7 @@ func (opp *UpdateCurrencyProcessor) PreProcess(
 		}
 	}
 
-	if err := state.CheckExistsState(statecurrency.DesignStateKey(fact.Currency()), getStateFunc); err != nil {
+	if err := state.CheckExistsState(ccstate.DesignStateKey(fact.Currency()), getStateFunc); err != nil {
 		return ctx, nil, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.Wrap(common.ErrMCurrencyNF).Errorf("currency id %q", fact.Currency()))
 	}
@@ -130,12 +130,12 @@ func (opp *UpdateCurrencyProcessor) Process(
 
 	sts := make([]base.StateMergeValue, 1)
 
-	st, err := state.ExistsState(statecurrency.DesignStateKey(fact.Currency()), fmt.Sprintf("currency design, %v", fact.Currency()), getStateFunc)
+	st, err := state.ExistsState(ccstate.DesignStateKey(fact.Currency()), fmt.Sprintf("currency design, %v", fact.Currency()), getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("check existence of currency id %q; %w", fact.Currency(), err), nil
 	}
 
-	de, err := statecurrency.GetDesignFromState(st)
+	de, err := ccstate.GetDesignFromState(st)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("get currency design of %v; %w", fact.Currency(), err), nil
 	}
@@ -144,7 +144,7 @@ func (opp *UpdateCurrencyProcessor) Process(
 
 	c := state.NewStateMergeValue(
 		st.Key(),
-		statecurrency.NewCurrencyDesignStateValue(de),
+		ccstate.NewCurrencyDesignStateValue(de),
 	)
 	sts[0] = c
 

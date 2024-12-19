@@ -2,15 +2,15 @@ package did_registry
 
 import (
 	"context"
-	"github.com/ProtoconNet/mitum-currency/v3/common"
-	"github.com/ProtoconNet/mitum-currency/v3/state"
-	didstate "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
-	"github.com/ProtoconNet/mitum-currency/v3/types"
-	crtypes "github.com/ProtoconNet/mitum-currency/v3/types"
 	"sync"
 
-	statecurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum-currency/v3/common"
+	"github.com/ProtoconNet/mitum-currency/v3/state"
+	ccstate "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	dstate "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
+	crtypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 )
 
@@ -21,22 +21,22 @@ var updateDIDDocumentProcessorPool = sync.Pool{
 }
 
 func (UpdateDIDDocument) Process(
-	_ context.Context, _ mitumbase.GetStateFunc,
-) ([]mitumbase.StateMergeValue, mitumbase.OperationProcessReasonError, error) {
+	_ context.Context, _ base.GetStateFunc,
+) ([]base.StateMergeValue, base.OperationProcessReasonError, error) {
 	return nil, nil, nil
 }
 
 type UpdateDIDDocumentProcessor struct {
-	*mitumbase.BaseOperationProcessor
+	*base.BaseOperationProcessor
 }
 
 func NewUpdateDIDDocumentProcessor() crtypes.GetNewProcessor {
 	return func(
-		height mitumbase.Height,
-		getStateFunc mitumbase.GetStateFunc,
-		newPreProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
-		newProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
-	) (mitumbase.OperationProcessor, error) {
+		height base.Height,
+		getStateFunc base.GetStateFunc,
+		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
+		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
+	) (base.OperationProcessor, error) {
 		e := util.StringError("failed to create new UpdateDIDDocumentProcessor")
 
 		nopp := updateDIDDocumentProcessorPool.Get()
@@ -45,7 +45,7 @@ func NewUpdateDIDDocumentProcessor() crtypes.GetNewProcessor {
 			return nil, e.Errorf("expected %T, not %T", UpdateDIDDocumentProcessor{}, nopp)
 		}
 
-		b, err := mitumbase.NewBaseOperationProcessor(
+		b, err := base.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
 			return nil, e.Wrap(err)
@@ -58,29 +58,29 @@ func NewUpdateDIDDocumentProcessor() crtypes.GetNewProcessor {
 }
 
 func (opp *UpdateDIDDocumentProcessor) PreProcess(
-	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc,
-) (context.Context, mitumbase.OperationProcessReasonError, error) {
+	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
+) (context.Context, base.OperationProcessReasonError, error) {
 	fact, ok := op.Fact().(UpdateDIDDocumentFact)
 	if !ok {
-		return ctx, mitumbase.NewBaseOperationProcessReasonError(
+		return ctx, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Wrap(common.ErrMTypeMismatch).
 				Errorf("expected %T, not %T", UpdateDIDDocumentFact{}, op.Fact())), nil
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, mitumbase.NewBaseOperationProcessReasonError(
+		return ctx, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Errorf("%v", err)), nil
 	}
 
-	if err := state.CheckExistsState(statecurrency.DesignStateKey(fact.Currency()), getStateFunc); err != nil {
-		return ctx, mitumbase.NewBaseOperationProcessReasonError(
+	if err := state.CheckExistsState(ccstate.DesignStateKey(fact.Currency()), getStateFunc); err != nil {
+		return ctx, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.Wrap(common.ErrMCurrencyNF).Errorf("currency id %v", fact.Currency())), nil
 	}
 
-	if err := state.CheckExistsState(didstate.DesignStateKey(fact.Contract()), getStateFunc); err != nil {
-		return nil, mitumbase.NewBaseOperationProcessReasonError(
+	if err := state.CheckExistsState(dstate.DesignStateKey(fact.Contract()), getStateFunc); err != nil {
+		return nil, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Wrap(common.ErrMServiceNF).Errorf("DID service for contract account %v",
 				fact.Contract(),
@@ -89,36 +89,36 @@ func (opp *UpdateDIDDocumentProcessor) PreProcess(
 
 	_, id, err := types.ParseDIDScheme(fact.DID())
 	if err != nil {
-		return nil, mitumbase.NewBaseOperationProcessReasonError(
+		return nil, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Wrap(common.ErrMValueInvalid).Errorf("did scheme is invalid %v",
 				fact.DID(),
 			)), nil
 	}
 
-	if st, err := state.ExistsState(didstate.DataStateKey(fact.Contract(), id), "did data", getStateFunc); err != nil {
-		return nil, mitumbase.NewBaseOperationProcessReasonError(
+	if st, err := state.ExistsState(dstate.DataStateKey(fact.Contract(), id), "did data", getStateFunc); err != nil {
+		return nil, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Wrap(common.ErrMStateNF).Errorf("DID Data for DID %v in contract account %v", fact.DID(),
 				fact.Contract(),
 			)), nil
-	} else if d, err := didstate.GetDataFromState(st); err != nil {
-		return nil, mitumbase.NewBaseOperationProcessReasonError(
+	} else if d, err := dstate.GetDataFromState(st); err != nil {
+		return nil, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Wrap(common.ErrMStateValInvalid).Errorf(
 				"DID Data for DID %v in contract account %v", fact.DID(),
 				fact.Contract(),
 			)), nil
 	} else if !d.Address().Equal(fact.Sender()) {
-		return nil, mitumbase.NewBaseOperationProcessReasonError(
+		return nil, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Wrap(common.ErrMStateValInvalid).Errorf(
 				"sender %v not matched with DID account address for DID %v in contract account %v", fact.Sender(), fact.DID(), fact.Contract(),
 			)), nil
 	}
 
-	if _, err := state.ExistsState(didstate.DocumentStateKey(fact.Contract(), fact.DID()), "did document", getStateFunc); err != nil {
-		return nil, mitumbase.NewBaseOperationProcessReasonError(
+	if _, err := state.ExistsState(dstate.DocumentStateKey(fact.Contract(), fact.DID()), "did document", getStateFunc); err != nil {
+		return nil, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.
 				Wrap(common.ErrMStateNF).Errorf("DID document for DID %v in contract account %v", fact.DID(),
 				fact.Contract(),
@@ -129,8 +129,8 @@ func (opp *UpdateDIDDocumentProcessor) PreProcess(
 }
 
 func (opp *UpdateDIDDocumentProcessor) Process( // nolint:dupl
-	_ context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc) (
-	[]mitumbase.StateMergeValue, mitumbase.OperationProcessReasonError, error,
+	_ context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
+	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
 	e := util.StringError("failed to process DeleteData")
 
@@ -139,10 +139,10 @@ func (opp *UpdateDIDDocumentProcessor) Process( // nolint:dupl
 		return nil, nil, e.Errorf("expected DeleteDataFact, not %T", op.Fact())
 	}
 
-	var sts []mitumbase.StateMergeValue // nolint:prealloc
+	var sts []base.StateMergeValue // nolint:prealloc
 	sts = append(sts, state.NewStateMergeValue(
-		didstate.DocumentStateKey(fact.Contract(), fact.DID()),
-		didstate.NewDocumentStateValue(fact.Document()),
+		dstate.DocumentStateKey(fact.Contract(), fact.DID()),
+		dstate.NewDocumentStateValue(fact.Document()),
 	))
 
 	return sts, nil, nil

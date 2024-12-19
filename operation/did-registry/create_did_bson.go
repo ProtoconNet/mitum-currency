@@ -1,14 +1,13 @@
 package did_registry
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/ProtoconNet/mitum2/util/valuehash"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (fact CreateDIDFact) MarshalBSON() ([]byte, error) {
@@ -61,7 +60,7 @@ func (fact *CreateDIDFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
-	pubKey, err := mitumbase.DecodePublickeyFromString(uf.PublicKey, enc)
+	pubKey, err := base.DecodePublickeyFromString(uf.PublicKey, enc)
 	if err != nil {
 		return common.DecorateError(err, common.ErrDecodeJson, *fact)
 	}

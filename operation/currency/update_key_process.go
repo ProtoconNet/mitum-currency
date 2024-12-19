@@ -98,15 +98,9 @@ func (opp *UpdateKeyProcessor) Process( // nolint:dupl
 	_ context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringError("process UpdateKey")
-
-	fact, ok := op.Fact().(UpdateKeyFact)
-	if !ok {
-		return nil, nil, e.Errorf("expected %T, not %T", UpdateKeyFact{}, op.Fact())
-	}
+	fact, _ := op.Fact().(UpdateKeyFact)
 
 	var stmvs []base.StateMergeValue // nolint:prealloc
-
 	var tgAccSt base.State
 	var err error
 	if tgAccSt, err = state.ExistsState(currency.AccountStateKey(fact.Sender()), "sender keys", getStateFunc); err != nil {

@@ -96,12 +96,7 @@ func (opp *UpdateHandlerProcessor) Process( // nolint:dupl
 	_ context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringError("process UpdateHandler")
-
-	fact, ok := op.Fact().(UpdateHandlerFact)
-	if !ok {
-		return nil, nil, e.Errorf("expected UpdateHandlerFact, not %T", op.Fact())
-	}
+	fact, _ := op.Fact().(UpdateHandlerFact)
 
 	var ctAccSt base.State
 	var err error

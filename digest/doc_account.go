@@ -1,7 +1,7 @@
 package digest
 
 import (
-	mongodbstorage "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
+	mongodbst "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	"github.com/ProtoconNet/mitum-currency/v3/state/extension"
@@ -12,14 +12,14 @@ import (
 )
 
 type AccountDoc struct {
-	mongodbstorage.BaseDoc
+	mongodbst.BaseDoc
 	address string
 	height  base.Height
 	pubs    []string
 }
 
 func NewAccountDoc(rs AccountValue, enc encoder.Encoder) (AccountDoc, error) {
-	b, err := mongodbstorage.NewBaseDoc(nil, rs, enc)
+	b, err := mongodbst.NewBaseDoc(nil, rs, enc)
 	if err != nil {
 		return AccountDoc{}, err
 	}
@@ -57,7 +57,7 @@ func (doc AccountDoc) MarshalBSON() ([]byte, error) {
 }
 
 type BalanceDoc struct {
-	mongodbstorage.BaseDoc
+	mongodbst.BaseDoc
 	st base.State
 	am types.Amount
 }
@@ -69,7 +69,7 @@ func NewBalanceDoc(st base.State, enc encoder.Encoder) (BalanceDoc, string, erro
 		return BalanceDoc{}, "", errors.Wrap(err, "BalanceDoc needs Amount state")
 	}
 
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodbst.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return BalanceDoc{}, "", err
 	}
@@ -97,7 +97,7 @@ func (doc BalanceDoc) MarshalBSON() ([]byte, error) {
 }
 
 type ContractAccountStatusDoc struct {
-	mongodbstorage.BaseDoc
+	mongodbst.BaseDoc
 	st  base.State
 	cas types.ContractAccountStatus
 }
@@ -108,7 +108,7 @@ func NewContractAccountStatusDoc(st base.State, enc encoder.Encoder) (ContractAc
 		return ContractAccountStatusDoc{}, errors.Wrap(err, "ContractAccountStatusDoc needs ContractAccountStatus state")
 	}
 
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodbst.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return ContractAccountStatusDoc{}, err
 	}

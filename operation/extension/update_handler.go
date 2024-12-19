@@ -151,8 +151,8 @@ func (fact UpdateHandlerFact) FactUser() base.Address {
 	return fact.sender
 }
 
-func (fact UpdateHandlerFact) ContractOwnerOnly() (base.Address, base.Address) {
-	return fact.contract, fact.sender
+func (fact UpdateHandlerFact) ContractOwnerOnly() [][2]base.Address {
+	return [][2]base.Address{{fact.contract, fact.sender}}
 }
 
 type UpdateHandler struct {

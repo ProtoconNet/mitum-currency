@@ -183,6 +183,14 @@ func (fact WithdrawFact) FactUser() base.Address {
 	return fact.sender
 }
 
+func (fact WithdrawFact) ContractOwnerOnly() [][2]base.Address {
+	var arr [][2]base.Address
+	for i := range fact.items {
+		arr = append(arr, [2]base.Address{fact.items[i].Target(), fact.sender})
+	}
+	return arr
+}
+
 type Withdraw struct {
 	extras.ExtendedOperation
 }
