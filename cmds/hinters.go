@@ -10,8 +10,10 @@ import (
 	statecurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	stateextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util/encoder"
+	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/pkg/errors"
 )
 
@@ -28,6 +30,7 @@ var AddedHinters = []encoder.DecodeDetail{
 	{Hint: types.AccountKeysHint, Instance: types.BaseAccountKeys{}},
 	{Hint: types.NilAccountKeysHint, Instance: types.NilAccountKeys{}},
 	{Hint: types.AddressHint, Instance: types.Address{}},
+	{Hint: types.StringAddressHint, Instance: types.StringAddress{}},
 	{Hint: types.AmountHint, Instance: types.Amount{}},
 	{Hint: types.ContractAccountKeysHint, Instance: types.ContractAccountKeys{}},
 	{Hint: types.ContractAccountStatusHint, Instance: types.ContractAccountStatus{}},
@@ -105,9 +108,10 @@ var AddedSupportedHinters = []encoder.DecodeDetail{
 }
 
 func init() {
-	Hinters = make([]encoder.DecodeDetail, len(launch.Hinters)+len(AddedHinters))
-	copy(Hinters, launch.Hinters)
-	copy(Hinters[len(launch.Hinters):], AddedHinters)
+	hinters := ExcludeHint(base.StringAddressHint, launch.Hinters)
+	Hinters = make([]encoder.DecodeDetail, len(hinters)+len(AddedHinters))
+	copy(Hinters, hinters)
+	copy(Hinters[len(hinters):], AddedHinters)
 
 	SupportedProposalOperationFactHinters = make(
 		[]encoder.DecodeDetail,
@@ -133,4 +137,14 @@ func LoadHinters(encs *encoder.Encoders) error {
 	}
 
 	return nil
+}
+
+func ExcludeHint(hint hint.Hint, launchHinters []encoder.DecodeDetail) []encoder.DecodeDetail {
+	var hinters []encoder.DecodeDetail
+	for _, v := range launchHinters {
+		if !v.Hint.Equal(hint) {
+			hinters = append(hinters, v)
+		}
+	}
+	return hinters
 }

@@ -14,7 +14,7 @@ func (fact SuffrageDisjoinFact) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint": fact.Hint().String(),
-			"node":  fact.node,
+			"node":  fact.node.String(),
 			"start": fact.start,
 			"hash":  fact.BaseFact.Hash().String(),
 			"token": fact.BaseFact.Token(),
