@@ -209,7 +209,7 @@ func GetDesignFromState(st base.State) (types.CurrencyDesign, error) {
 }
 
 func BalanceStateKeyPrefix(a base.Address, cid types.CurrencyID) string {
-	return fmt.Sprintf("%s:%s", a.String(), cid)
+	return fmt.Sprintf("%s-%s", a.String(), cid)
 }
 
 func AccountStateKey(a base.Address) string {

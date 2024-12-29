@@ -249,7 +249,9 @@ func ParseStateKey(key string, Prefix string, expected int) ([]string, error) {
 }
 
 func ParseStateKeyBySuffix(key string, suffix string, expected int) ([]string, error) {
-	parsedKey := strings.Split(key, ":")
+	sp := strings.Split(key, "-")
+	nsp := strings.Split(sp[1], ":")
+	parsedKey := []string{sp[0], nsp[0], nsp[1]}
 	if parsedKey[len(parsedKey)-1] != suffix {
 		return nil, errors.Errorf("State Key, %v not include Suffix, %s", parsedKey, suffix)
 	}
