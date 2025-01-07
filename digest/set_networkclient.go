@@ -9,8 +9,3 @@ func (hd *Handlers) SetNetworkClientFunc(f func() (*quicstream.ConnectionPool, *
 	hd.client = f
 	return hd
 }
-
-//func (hd *Handlers) SetConnectionPool(connectionPool *quicstream.ConnectionPool) *Handlers {
-//	hd.connectionPool = connectionPool
-//	return hd
-//}

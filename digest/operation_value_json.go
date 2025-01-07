@@ -1,63 +1,81 @@
 package digest
 
 import (
-	"encoding/json"
-
+	"github.com/ProtoconNet/mitum-currency/v3/common"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
-	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/ProtoconNet/mitum2/util/localtime"
 )
 
+type ExpendedOperationMarshaler struct {
+	common.BaseOperationJSONMarshaler
+	extras.BaseOperationExtensionsJSONMarshaler
+}
+
+type ExpendedOperationValueJSONMarshaler struct {
+	hint.BaseHinter
+	Hash        util.Hash                  `json:"hash"`
+	Operation   ExpendedOperationMarshaler `json:"operation"`
+	Height      base.Height                `json:"height"`
+	ConfirmedAt localtime.Time             `json:"confirmed_at"`
+	Reason      string                     `json:"reason"`
+	InState     bool                       `json:"in_state"`
+	Index       uint64                     `json:"index"`
+}
+
 type OperationValueJSONMarshaler struct {
 	hint.BaseHinter
-	Hash        util.Hash      `json:"hash"`
-	Operation   base.Operation `json:"operation"`
-	Height      base.Height    `json:"height"`
-	ConfirmedAt localtime.Time `json:"confirmed_at"`
-	Reason      string         `json:"reason"`
-	InState     bool           `json:"in_state"`
-	Index       uint64         `json:"index"`
+	Hash        util.Hash                         `json:"hash"`
+	Operation   common.BaseOperationJSONMarshaler `json:"operation"`
+	Height      base.Height                       `json:"height"`
+	ConfirmedAt localtime.Time                    `json:"confirmed_at"`
+	Reason      string                            `json:"reason"`
+	InState     bool                              `json:"in_state"`
+	Index       uint64                            `json:"index"`
 }
 
 func (va OperationValue) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(OperationValueJSONMarshaler{
-		BaseHinter:  va.BaseHinter,
-		Hash:        va.op.Fact().Hash(),
-		Operation:   va.op,
-		Height:      va.height,
-		ConfirmedAt: localtime.New(va.confirmedAt),
-		Reason:      va.reason,
-		InState:     va.inState,
-		Index:       va.index,
-	})
-}
-
-type OperationValueJSONUnmarshaler struct {
-	Operation   json.RawMessage `json:"operation"`
-	Height      base.Height     `json:"height"`
-	ConfirmedAt localtime.Time  `json:"confirmed_at"`
-	InState     bool            `json:"in_state"`
-	Reason      string          `json:"reason"`
-	Index       uint64          `json:"index"`
-}
-
-func (va *OperationValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
-	var uva OperationValueJSONUnmarshaler
-	if err := enc.Unmarshal(b, &uva); err != nil {
-		return err
+	var op base.Operation = va.op
+	eo, ok := op.(extras.ExtendedOperation)
+	if ok && len(eo.Extensions()) > 0 {
+		return util.MarshalJSON(ExpendedOperationValueJSONMarshaler{
+			BaseHinter: va.BaseHinter,
+			Hash:       va.op.Fact().Hash(),
+			Operation: ExpendedOperationMarshaler{
+				BaseOperationJSONMarshaler: common.BaseOperationJSONMarshaler{
+					BaseHinter: hint.NewBaseHinter(va.op.Hint()),
+					Hash:       va.op.Hash(),
+					Fact:       va.op.Fact(),
+					Signs:      va.op.Signs(),
+				},
+				BaseOperationExtensionsJSONMarshaler: extras.BaseOperationExtensionsJSONMarshaler{
+					Extension: eo.Extensions(),
+				},
+			},
+			Height:      va.height,
+			ConfirmedAt: localtime.New(va.confirmedAt),
+			Reason:      va.reason,
+			InState:     va.inState,
+			Index:       va.index,
+		})
+	} else {
+		return util.MarshalJSON(OperationValueJSONMarshaler{
+			BaseHinter: va.BaseHinter,
+			Hash:       va.op.Fact().Hash(),
+			Operation: common.BaseOperationJSONMarshaler{
+				BaseHinter: hint.NewBaseHinter(va.op.Hint()),
+				Hash:       va.op.Hash(),
+				Fact:       va.op.Fact(),
+				Signs:      va.op.Signs(),
+			},
+			Height:      va.height,
+			ConfirmedAt: localtime.New(va.confirmedAt),
+			Reason:      va.reason,
+			InState:     va.inState,
+			Index:       va.index,
+		})
 	}
 
-	if err := enc.Unmarshal(uva.Operation, &va.op); err != nil {
-		return err
-	}
-
-	va.reason = uva.Reason
-	va.height = uva.Height
-	va.confirmedAt = uva.ConfirmedAt.Time
-	va.inState = uva.InState
-	va.index = uva.Index
-
-	return nil
 }

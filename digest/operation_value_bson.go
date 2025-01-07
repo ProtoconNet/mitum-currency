@@ -31,11 +31,13 @@ func (va OperationValue) MarshalBSON() ([]byte, error) {
 		"signs": signs,
 	}
 
+	var extension = make(map[string]interface{})
 	eo, ok := va.op.(extras.OperationExtensions)
-	if ok {
+	if ok && len(eo.Extensions()) > 0 {
 		for k, v := range eo.Extensions() {
-			op[k] = v
+			extension[k] = v
 		}
+		op["extension"] = extension
 	}
 
 	return bsonenc.Marshal(
@@ -63,6 +65,7 @@ type OperationValueBSONUnmarshaler struct {
 
 func (va *OperationValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	e := util.StringError("Decode bson of OperationValue")
+
 	var uva OperationValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &uva); err != nil {
 		return e.Wrap(err)
@@ -81,14 +84,14 @@ func (va *OperationValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	}
 
 	var ueo extras.BaseOperationExtensions
-	if err := ueo.DecodeBSON(b, enc); err != nil {
+	if err := ueo.DecodeBSON(uva.OP, enc); err != nil {
 		return e.Wrap(err)
 	}
 
 	if ueo.Extensions() != nil {
-		va.op = ExtendedOperation{
+		va.op = extras.ExtendedOperation{
 			BaseOperation:           op,
-			BaseOperationExtensions: ueo,
+			BaseOperationExtensions: &ueo,
 		}
 	} else {
 		va.op = op
@@ -99,21 +102,5 @@ func (va *OperationValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	va.inState = uva.InState
 	va.index = uva.Index
 	va.reason = uva.RS
-	return nil
-}
-
-type ExtendedOperation struct {
-	common.BaseOperation
-	extras.BaseOperationExtensions
-}
-
-func (op ExtendedOperation) IsValid(networkID []byte) error {
-	if err := op.BaseOperation.IsValid(networkID); err != nil {
-		return err
-	}
-	if err := op.BaseOperationExtensions.IsValid(networkID); err != nil {
-		return err
-	}
-
 	return nil
 }
