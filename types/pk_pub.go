@@ -76,7 +76,7 @@ func (k MEPublickey) IsValid([]byte) error {
 
 	switch {
 	case k.k == nil:
-		return util.ErrInvalid.Errorf("empty btc public key in MEPublickey")
+		return util.ErrInvalid.Errorf("empty public key in MEPublickey")
 	case len(k.s) < 1:
 		return util.ErrInvalid.Errorf("empty public key string")
 	case len(k.b) < 1:

@@ -81,7 +81,7 @@ func DIDData(db *Database, contract, key string) (*types.Data, base.State, error
 		opt,
 	); err != nil {
 		return nil, nil, util.ErrNotFound.WithMessage(
-			err, "DID data for public key %s in contract account %s", key, contract)
+			err, "DID data for account address %s in contract account %s", key, contract)
 	}
 
 	if data != nil {
