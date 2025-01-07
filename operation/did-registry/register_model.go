@@ -118,12 +118,6 @@ func (fact RegisterModelFact) FeeBase() map[types.CurrencyID][]common.Big {
 	return required
 }
 
-func (fact RegisterModelFact) SendRequired() map[types.CurrencyID]common.Big {
-	required := make(map[types.CurrencyID]common.Big)
-
-	return required
-}
-
 func (fact RegisterModelFact) FeePayer() base.Address {
 	return fact.sender
 }

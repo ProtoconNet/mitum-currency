@@ -74,6 +74,13 @@ func (fact RegisterGenesisCurrencyFact) IsValid(b []byte) error {
 		c := fact.cs[i]
 		if err := c.IsValid(nil); err != nil {
 			return common.ErrFactInvalid.Wrap(err)
+		} else if !c.InitialSupply().Big().Equal(c.TotalSupply()) {
+			return common.ErrFactInvalid.Wrap(
+				errors.Errorf(
+					"currency initial supply, %v not matched with total supply, %v",
+					c.InitialSupply().Big(),
+					c.TotalSupply(),
+				))
 		} else if _, found := founds[c.Currency()]; found {
 			return common.ErrFactInvalid.Wrap(common.ErrDupVal.Wrap(errors.Errorf("currency id, %v", c.Currency())))
 		} else {

@@ -135,12 +135,6 @@ func (fact UpdateDIDDocumentFact) FeeBase() map[types.CurrencyID][]common.Big {
 	return required
 }
 
-func (fact UpdateDIDDocumentFact) SendRequired() map[types.CurrencyID]common.Big {
-	required := make(map[types.CurrencyID]common.Big)
-
-	return required
-}
-
 func (fact UpdateDIDDocumentFact) FeePayer() base.Address {
 	return fact.sender
 }
