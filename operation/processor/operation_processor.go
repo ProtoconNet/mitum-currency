@@ -762,21 +762,17 @@ func CheckBalanceStateMergeValue(stateMergeValues []base.StateMergeValue, getSta
 					return nil, errors.Errorf("expected BalanceStateValue, but %T", st.Value())
 				}
 			}
-			fmt.Println("before existing", existing)
-			fmt.Println("bv.add", bv.add)
-			fmt.Println("bv.remove", bv.remove)
+
 			if bv.add.OverZero() {
 				existing = existing.Add(bv.add)
 			}
 			if bv.remove.OverZero() {
 				existing = existing.Sub(bv.remove)
 			}
-			fmt.Println("after existing", existing)
 			if !existing.OverNil() {
 				return base.NewBaseOperationProcessReasonError(
 					"account %s has insufficient balance. It is short by %v.", bv.address, existing), nil
 			}
-			fmt.Println("")
 		}
 	}
 
