@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	defaultColNameDIDRegistry = "digest_did_registry"
-	defaultColNameDIDData     = "digest_did_data"
-	defaultColNameDIDDocument = "digest_did_document"
+	DefaultColNameDIDRegistry = "digest_did_registry"
+	DefaultColNameDIDData     = "digest_did_registry_data"
+	DefaultColNameDIDDocument = "digest_did_registry_document"
 )
 
 func DIDDesign(st *Database, contract string) (types.Design, base.State, error) {
@@ -26,7 +26,7 @@ func DIDDesign(st *Database, contract string) (types.Design, base.State, error) 
 	)
 	var sta base.State
 	if err := st.MongoClient().GetByFilter(
-		defaultColNameDIDRegistry,
+		DefaultColNameDIDRegistry,
 		q,
 		func(res *mongo.SingleResult) error {
 			i, err := LoadState(res.Decode, st.Encoders())
@@ -64,7 +64,7 @@ func DIDData(db *Database, contract, key string) (*types.Data, base.State, error
 	var sta base.State
 	var err error
 	if err := db.MongoClient().GetByFilter(
-		defaultColNameDIDData,
+		DefaultColNameDIDData,
 		q,
 		func(res *mongo.SingleResult) error {
 			sta, err = LoadState(res.Decode, db.Encoders())
@@ -103,7 +103,7 @@ func DIDDocument(db *Database, contract, key string) (*types.DIDDocument, base.S
 	var sta base.State
 	var err error
 	if err := db.MongoClient().GetByFilter(
-		defaultColNameDIDDocument,
+		DefaultColNameDIDDocument,
 		q,
 		func(res *mongo.SingleResult) error {
 			sta, err = LoadState(res.Decode, db.Encoders())

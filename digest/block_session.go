@@ -112,54 +112,54 @@ func (bs *BlockSession) Commit(ctx context.Context) error {
 	}()
 
 	_, err := bs.st.digestDB.Client().WithSession(func(txnCtx mongo.SessionContext, collection func(string) *mongo.Collection) (interface{}, error) {
-		if err := bs.writeModels(txnCtx, defaultColNameBlock, bs.blockModels); err != nil {
+		if err := bs.writeModels(txnCtx, DefaultColNameBlock, bs.blockModels); err != nil {
 			return nil, err
 		}
 
 		if len(bs.operationModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameOperation, bs.operationModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameOperation, bs.operationModels); err != nil {
 				return nil, err
 			}
 		}
 
 		if len(bs.currencyModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameCurrency, bs.currencyModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameCurrency, bs.currencyModels); err != nil {
 				return nil, err
 			}
 		}
 
 		if len(bs.accountModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameAccount, bs.accountModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameAccount, bs.accountModels); err != nil {
 				return nil, err
 			}
 		}
 
 		if len(bs.contractAccountModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameContractAccount, bs.contractAccountModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameContractAccount, bs.contractAccountModels); err != nil {
 				return nil, err
 			}
 		}
 
 		if len(bs.balanceModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameBalance, bs.balanceModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameBalance, bs.balanceModels); err != nil {
 				return nil, err
 			}
 		}
 
 		if len(bs.didRegistryModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameDIDRegistry, bs.didRegistryModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameDIDRegistry, bs.didRegistryModels); err != nil {
 				return nil, err
 			}
 		}
 
 		if len(bs.didDataModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameDIDData, bs.didDataModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameDIDData, bs.didDataModels); err != nil {
 				return nil, err
 			}
 		}
 
 		if len(bs.didDocumentModels) > 0 {
-			if err := bs.writeModels(txnCtx, defaultColNameDIDDocument, bs.didDocumentModels); err != nil {
+			if err := bs.writeModels(txnCtx, DefaultColNameDIDDocument, bs.didDocumentModels); err != nil {
 				return nil, err
 			}
 		}

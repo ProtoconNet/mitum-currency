@@ -29,20 +29,20 @@ import (
 var maxLimit int64 = 50
 
 var (
-	defaultColNameAccount         = "digest_ac"
-	defaultColNameContractAccount = "digest_ca"
-	defaultColNameBalance         = "digest_bl"
-	defaultColNameCurrency        = "digest_cr"
-	defaultColNameOperation       = "digest_op"
-	defaultColNameBlock           = "digest_bm"
+	DefaultColNameAccount         = "digest_ac"
+	DefaultColNameContractAccount = "digest_ca"
+	DefaultColNameBalance         = "digest_bl"
+	DefaultColNameCurrency        = "digest_cr"
+	DefaultColNameOperation       = "digest_op"
+	DefaultColNameBlock           = "digest_bm"
 )
 
 var AllCollections = []string{
-	defaultColNameAccount,
-	defaultColNameBalance,
-	defaultColNameCurrency,
-	defaultColNameOperation,
-	defaultColNameBlock,
+	DefaultColNameAccount,
+	DefaultColNameBalance,
+	DefaultColNameCurrency,
+	DefaultColNameOperation,
+	DefaultColNameBlock,
 }
 
 var DigestStorageLastBlockKey = "digest_last_block"
@@ -196,11 +196,11 @@ func (db *Database) Clean() error {
 
 func (db *Database) clean(ctx context.Context) error {
 	for _, col := range []string{
-		defaultColNameAccount,
-		defaultColNameBalance,
-		defaultColNameCurrency,
-		defaultColNameOperation,
-		defaultColNameBlock,
+		DefaultColNameAccount,
+		DefaultColNameBalance,
+		DefaultColNameCurrency,
+		DefaultColNameOperation,
+		DefaultColNameBlock,
 	} {
 		if err := db.digestDB.Client().Collection(col).Drop(ctx); err != nil {
 			return err
@@ -238,11 +238,11 @@ func (db *Database) cleanByHeight(ctx context.Context, height base.Height) error
 	removeByHeight := mongo.NewDeleteManyModel().SetFilter(bson.M{"height": bson.M{"$gte": height}})
 
 	for _, col := range []string{
-		defaultColNameAccount,
-		defaultColNameBalance,
-		defaultColNameCurrency,
-		defaultColNameOperation,
-		defaultColNameBlock,
+		DefaultColNameAccount,
+		DefaultColNameBalance,
+		DefaultColNameCurrency,
+		DefaultColNameOperation,
+		DefaultColNameBlock,
 	} {
 		res, err := db.digestDB.Client().Collection(col).BulkWrite(
 			ctx,
@@ -301,7 +301,7 @@ func (db *Database) Manifests(
 
 	return db.digestDB.Client().Find(
 		context.Background(),
-		defaultColNameBlock,
+		DefaultColNameBlock,
 		filter,
 		func(cursor *mongo.Cursor) (bool, error) {
 			va, ops, confirmed, proposer, round, err := LoadManifest(cursor.Decode, db.digestDB.Encoders())
@@ -357,7 +357,7 @@ func (db *Database) OperationsByAddress(
 
 	return db.digestDB.Client().Find(
 		context.Background(),
-		defaultColNameOperation,
+		DefaultColNameOperation,
 		filter,
 		func(cursor *mongo.Cursor) (bool, error) {
 			if !load {
@@ -385,13 +385,13 @@ func (db *Database) Operation(
 	load bool,
 ) (OperationValue, bool /* exists */, error) {
 	if !load {
-		exists, err := db.digestDB.Client().Exists(defaultColNameOperation, dutil.NewBSONFilter("fact", h).D())
+		exists, err := db.digestDB.Client().Exists(DefaultColNameOperation, dutil.NewBSONFilter("fact", h).D())
 		return OperationValue{}, exists, err
 	}
 
 	var va OperationValue
 	if err := db.digestDB.Client().GetByFilter(
-		defaultColNameOperation,
+		DefaultColNameOperation,
 		dutil.NewBSONFilter("fact", h).D(),
 		func(res *mongo.SingleResult) error {
 			if !load {
@@ -445,14 +445,14 @@ func (db *Database) Operations(
 		opt = opt.SetProjection(bson.M{"fact": 1})
 	}
 
-	count, err := db.digestDB.Client().Count(context.Background(), defaultColNameOperation, bson.D{})
+	count, err := db.digestDB.Client().Count(context.Background(), DefaultColNameOperation, bson.D{})
 	if err != nil {
 		return err
 	}
 
 	return db.digestDB.Client().Find(
 		context.Background(),
-		defaultColNameOperation,
+		DefaultColNameOperation,
 		filter,
 		func(cursor *mongo.Cursor) (bool, error) {
 			if !load {
@@ -478,14 +478,14 @@ func (db *Database) OperationsByHash(
 	filter bson.M,
 	callback func(util.Hash /* fact hash */, OperationValue, int64) (bool, error),
 ) error {
-	count, err := db.digestDB.Client().Count(context.Background(), defaultColNameOperation, bson.D{})
+	count, err := db.digestDB.Client().Count(context.Background(), DefaultColNameOperation, bson.D{})
 	if err != nil {
 		return err
 	}
 
 	return db.digestDB.Client().Find(
 		context.Background(),
-		defaultColNameOperation,
+		DefaultColNameOperation,
 		filter,
 		func(cursor *mongo.Cursor) (bool, error) {
 			va, err := LoadOperation(cursor.Decode, db.digestDB.Encoders())
@@ -502,7 +502,7 @@ func (db *Database) OperationsByHash(
 func (db *Database) Account(a base.Address) (AccountValue, bool /* exists */, error) {
 	var rs AccountValue
 	if err := db.digestDB.Client().GetByFilter(
-		defaultColNameAccount,
+		DefaultColNameAccount,
 		dutil.NewBSONFilter("address", a.String()).D(),
 		func(res *mongo.SingleResult) error {
 			i, err := LoadAccountValue(res.Decode, db.digestDB.Encoders())
@@ -635,7 +635,7 @@ func (db *Database) balance(a base.Address) ([]types.Amount, base.Height, error)
 
 		var sta base.State
 		if err := db.digestDB.Client().GetByFilter(
-			defaultColNameBalance,
+			DefaultColNameBalance,
 			q,
 			func(res *mongo.SingleResult) error {
 				i, err := LoadBalance(res.Decode, db.digestDB.Encoders())
@@ -689,7 +689,7 @@ func (db *Database) contractAccountStatus(a base.Address) (types.ContractAccount
 	)
 	var sta base.State
 	if err := db.digestDB.Client().GetByFilter(
-		defaultColNameContractAccount,
+		DefaultColNameContractAccount,
 		filter.D(),
 		func(res *mongo.SingleResult) error {
 			i, err := LoadContractAccountStatus(res.Decode, db.digestDB.Encoders())
@@ -736,7 +736,7 @@ func (db *Database) currencies() ([]string, error) {
 		)
 		var sta base.State
 		if err := db.digestDB.Client().GetByFilter(
-			defaultColNameCurrency,
+			DefaultColNameCurrency,
 			q,
 			func(res *mongo.SingleResult) error {
 				i, err := LoadCurrency(res.Decode, db.digestDB.Encoders())
@@ -777,7 +777,7 @@ func (db *Database) ManifestByHeight(height base.Height) (base.Manifest, uint64,
 	var operations, round uint64
 	var confirmed, proposer string
 	if err := db.digestDB.Client().GetByFilter(
-		defaultColNameBlock,
+		DefaultColNameBlock,
 		q,
 		func(res *mongo.SingleResult) error {
 			v, ops, cfrm, prps, rnd, err := LoadManifest(res.Decode, db.digestDB.Encoders())
@@ -809,7 +809,7 @@ func (db *Database) ManifestByHash(hash util.Hash) (base.Manifest, uint64, strin
 	var operations, round uint64
 	var confirmed, proposer string
 	if err := db.digestDB.Client().GetByFilter(
-		defaultColNameBlock,
+		DefaultColNameBlock,
 		q,
 		func(res *mongo.SingleResult) error {
 			v, ops, cfrm, prps, rnd, err := LoadManifest(res.Decode, db.digestDB.Encoders())
@@ -842,7 +842,7 @@ func (db *Database) currency(cid string) (types.CurrencyDesign, base.State, erro
 	)
 	var sta base.State
 	if err := db.digestDB.Client().GetByFilter(
-		defaultColNameCurrency,
+		DefaultColNameCurrency,
 		q,
 		func(res *mongo.SingleResult) error {
 			i, err := LoadCurrency(res.Decode, db.digestDB.Encoders())
@@ -870,7 +870,7 @@ func (db *Database) currency(cid string) (types.CurrencyDesign, base.State, erro
 
 func (db *Database) topHeightByPublickey(pub base.Publickey) (base.Height, error) {
 	var sas []string
-	switch r, err := db.digestDB.Client().Collection(defaultColNameAccount).Distinct(
+	switch r, err := db.digestDB.Client().Collection(DefaultColNameAccount).Distinct(
 		context.Background(),
 		"address",
 		buildAccountsFilterByPublickey(pub),
@@ -910,7 +910,7 @@ func (db *Database) partialTopHeightByPublickey(as []string) (base.Height, error
 	var top base.Height
 	err := db.digestDB.Client().Find(
 		context.Background(),
-		defaultColNameAccount,
+		DefaultColNameAccount,
 		bson.M{"address": bson.M{"$in": as}},
 		func(cursor *mongo.Cursor) (bool, error) {
 			h, err := loadHeightDoc(cursor.Decode)
@@ -931,7 +931,7 @@ func (db *Database) partialTopHeightByPublickey(as []string) (base.Height, error
 }
 
 func (db *Database) addressesByPublickey(filter bson.M) ([]string, error) {
-	r, err := db.digestDB.Client().Collection(defaultColNameAccount).Distinct(context.Background(), "address", filter)
+	r, err := db.digestDB.Client().Collection(DefaultColNameAccount).Distinct(context.Background(), "address", filter)
 	if err != nil {
 		return nil, errors.Wrap(err, "get distinct addresses")
 	}
@@ -964,7 +964,7 @@ func (db *Database) filterAccountByPublickey(
 	var stopped bool
 	if err := db.digestDB.Client().Find(
 		context.Background(),
-		defaultColNameAccount,
+		DefaultColNameAccount,
 		filter,
 		func(cursor *mongo.Cursor) (bool, error) {
 			if called == limit {
@@ -1072,7 +1072,7 @@ func (db *Database) cleanBalanceByHeightAndAccount(ctx context.Context, height b
 	opts := options.BulkWrite().SetOrdered(true)
 	removeByAddress := mongo.NewDeleteManyModel().SetFilter(bson.M{"address": address, "height": bson.M{"$lte": height}})
 
-	res, err := db.digestDB.Client().Collection(defaultColNameBalance).BulkWrite(
+	res, err := db.digestDB.Client().Collection(DefaultColNameBalance).BulkWrite(
 		context.Background(),
 		[]mongo.WriteModel{removeByAddress},
 		opts,
@@ -1081,7 +1081,7 @@ func (db *Database) cleanBalanceByHeightAndAccount(ctx context.Context, height b
 		return err
 	}
 
-	db.Log().Debug().Str("collection", defaultColNameBalance).Interface("result", res).Msg("clean Balancecollection by address")
+	db.Log().Debug().Str("collection", DefaultColNameBalance).Interface("result", res).Msg("clean Balancecollection by address")
 
 	return nil
 }

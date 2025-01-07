@@ -107,11 +107,11 @@ var didRegistryDocumentIndexModels = []mongo.IndexModel{
 }
 
 var DefaultIndexes = map[string] /* collection */ []mongo.IndexModel{
-	defaultColNameBlock:       blockIndexModels,
-	defaultColNameAccount:     accountIndexModels,
-	defaultColNameBalance:     balanceIndexModels,
-	defaultColNameOperation:   operationIndexModels,
-	defaultColNameDIDRegistry: didRegistryIndexModels,
-	defaultColNameDIDData:     didRegistryDataIndexModels,
-	defaultColNameDIDDocument: didRegistryDocumentIndexModels,
+	DefaultColNameBlock:       blockIndexModels,
+	DefaultColNameAccount:     accountIndexModels,
+	DefaultColNameBalance:     balanceIndexModels,
+	DefaultColNameOperation:   operationIndexModels,
+	DefaultColNameDIDRegistry: didRegistryIndexModels,
+	DefaultColNameDIDData:     didRegistryDataIndexModels,
+	DefaultColNameDIDDocument: didRegistryDocumentIndexModels,
 }
