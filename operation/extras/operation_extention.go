@@ -660,6 +660,58 @@ func VerifyInActiveContractOwnerHandlerOnly(fact InActiveContractOwnerHandlerOnl
 	return nil
 }
 
+type ActiveContractOwnerHandlerOnly interface {
+	ActiveContractOwnerHandlerOnly() [][2]base.Address // contract, sender
+}
+
+// VerifyActiveContractOwnerHandlerOnly function checks
+// existence of contract account
+// sender is owner of contract account
+func VerifyActiveContractOwnerHandlerOnly(fact ActiveContractOwnerHandlerOnly, getStateFunc base.GetStateFunc) base.OperationProcessReasonError {
+	for _, addresses := range fact.ActiveContractOwnerHandlerOnly() {
+		contract := addresses[0]
+		sender := addresses[1]
+
+		if contract == nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Errorf("empty contract account"))
+		}
+		if sender == nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Errorf("empty sender account"))
+		}
+
+		_, cSt, aErr, cErr := state.ExistsCAccount(contract, "contract", true, true, getStateFunc)
+		if aErr != nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Errorf("%v", aErr))
+		} else if cErr != nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Errorf("%v", cErr))
+		}
+
+		ca, err := estate.CheckCAAuthFromState(cSt, sender)
+		if err != nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Errorf("%v", err))
+		}
+
+		if !ca.IsActive() {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Wrap(common.ErrMServiceNF).Errorf(
+					"contract account %v has not been activated", contract))
+		}
+	}
+
+	return nil
+}
+
 type ActiveContract interface {
 	ActiveContract() []base.Address
 }
@@ -696,7 +748,7 @@ func VerifyActiveContract(fact ActiveContract, getStateFunc base.GetStateFunc) b
 		if !ca.IsActive() {
 			return base.NewBaseOperationProcessReasonError(
 				common.ErrMPreProcess.
-					Wrap(common.ErrMServiceE).Errorf(
+					Wrap(common.ErrMServiceNF).Errorf(
 					"contract account %v has not been activated", contract))
 		}
 	}
