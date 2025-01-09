@@ -71,14 +71,6 @@ func (opp *UpdateHandlerProcessor) PreProcess(
 				Errorf("expected UpdateHandlerFact, not %T", op.Fact())), nil
 	}
 
-	_, err := state.ExistsCurrencyPolicy(fact.Currency(), getStateFunc)
-	if err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError(
-			common.ErrMPreProcess.
-				Errorf("%v", err),
-		), nil
-	}
-
 	for i := range fact.Handlers() {
 		if _, _, _, cErr := state.ExistsCAccount(
 			fact.Handlers()[i], "handler", true, false, getStateFunc); cErr != nil {

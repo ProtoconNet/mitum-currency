@@ -35,29 +35,11 @@ func (Transfer) Process(
 type TransferItemProcessor struct {
 	h    util.Hash
 	item TransferItem
-	rb   map[types.CurrencyID]base.StateMergeValue
 }
 
 func (opp *TransferItemProcessor) PreProcess(
 	_ context.Context, _ base.Operation, getStateFunc base.GetStateFunc,
 ) error {
-	e := util.StringError("preprocess TransferItemProcessor")
-
-	rb := map[types.CurrencyID]base.StateMergeValue{}
-
-	amounts := opp.item.Amounts()
-	for i := range amounts {
-		am := amounts[i]
-		cid := am.Currency()
-
-		_, err := state.ExistsCurrencyPolicy(cid, getStateFunc)
-		if err != nil {
-			return e.Wrap(err)
-		}
-	}
-
-	opp.rb = rb
-
 	return nil
 }
 
@@ -114,14 +96,12 @@ func (opp *TransferItemProcessor) Process(
 func (opp *TransferItemProcessor) Close() {
 	opp.h = nil
 	opp.item = nil
-	opp.rb = nil
 
 	transferItemProcessorPool.Put(opp)
 }
 
 type TransferProcessor struct {
 	*base.BaseOperationProcessor
-	//ns       []*TransferItemProcessor
 	required map[types.CurrencyID][2]common.Big
 }
 
@@ -147,7 +127,6 @@ func NewTransferProcessor() types.GetNewProcessor {
 		}
 
 		opp.BaseOperationProcessor = b
-		//opp.ns = nil
 		opp.required = nil
 
 		return opp, nil
@@ -214,7 +193,6 @@ func (opp *TransferProcessor) Process( // nolint:dupl
 		return nil, base.NewBaseOperationProcessReasonError("expected %T, not %T", TransferFact{}, op.Fact()), nil
 	}
 
-	//ns := make([]*TransferItemProcessor, len(fact.items))
 	var stateMergeValues []base.StateMergeValue // nolint:prealloc
 	var wg sync.WaitGroup
 	var mu sync.Mutex

@@ -208,6 +208,12 @@ func (opr *OperationProcessor) PreProcess(ctx context.Context, op base.Operation
 		opp = i
 	}
 
+	if fact, ok := op.Fact().(extras.FeeAble); ok {
+		if err := extras.VerifyFeeAble(fact, getStateFunc); err != nil {
+			return ctx, err, nil
+		}
+	}
+
 	if fact, ok := op.Fact().(extras.FactUser); ok {
 		if err := extras.VerifyFactUser(fact, getStateFunc); err != nil {
 			return ctx, err, nil

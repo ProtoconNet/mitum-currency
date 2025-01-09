@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	"github.com/ProtoconNet/mitum-currency/v3/state"
 	ccstate "github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
@@ -47,11 +46,6 @@ func (opp *WithdrawItemProcessor) PreProcess(
 
 	for i := range opp.item.Amounts() {
 		am := opp.item.Amounts()[i]
-
-		_, err := state.ExistsCurrencyPolicy(am.Currency(), getStateFunc)
-		if err != nil {
-			return e.Wrap(err)
-		}
 
 		st, _, err := getStateFunc(ccstate.BalanceStateKey(opp.item.Target(), am.Currency()))
 		if err != nil {

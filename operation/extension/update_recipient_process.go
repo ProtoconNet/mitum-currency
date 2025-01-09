@@ -71,14 +71,6 @@ func (opp *UpdateRecipientProcessor) PreProcess(
 				Errorf("expected UpdateRecipientFact, not %T", op.Fact())), nil
 	}
 
-	_, err := state.ExistsCurrencyPolicy(fact.Currency(), getStateFunc)
-	if err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError(
-			common.ErrMPreProcess.
-				Errorf("%v", err),
-		), nil
-	}
-
 	for i := range fact.Recipients() {
 		if _, _, _, cErr := state.ExistsCAccount(
 			fact.Recipients()[i], "recipient", true, false, getStateFunc); cErr != nil {

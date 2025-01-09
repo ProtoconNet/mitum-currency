@@ -66,14 +66,6 @@ func (opp *UpdateKeyProcessor) PreProcess(
 			common.ErrMPreProcess.Wrap(common.ErrMTypeMismatch).Errorf("expected %T, not %T", UpdateKeyFact{}, op.Fact())), nil
 	}
 
-	_, err := state.ExistsCurrencyPolicy(fact.Currency(), getStateFunc)
-	if err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError(
-			common.ErrMPreProcess.
-				Errorf("%v", err),
-		), nil
-	}
-
 	if aState, _, aErr, cErr := state.ExistsCAccount(fact.Sender(), "sender", true, false, getStateFunc); aErr != nil {
 		return ctx, base.NewBaseOperationProcessReasonError(
 			common.ErrMPreProcess.Errorf("%v", aErr)), nil

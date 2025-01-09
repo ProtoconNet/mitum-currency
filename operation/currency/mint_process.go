@@ -102,9 +102,7 @@ func (opp *MintProcessor) PreProcess(
 			), nil
 	}
 
-	for i := range fact.Items() {
-		item := fact.Items()[i]
-
+	for _, item := range fact.Items() {
 		_, err := state.ExistsCurrencyPolicy(item.Amount().Currency(), getStateFunc)
 		if err != nil {
 			return ctx, base.NewBaseOperationProcessReasonError(

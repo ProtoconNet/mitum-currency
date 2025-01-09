@@ -535,6 +535,27 @@ type FeeAble interface {
 	FeePayer() base.Address
 }
 
+// VerifyFeeAble function checks
+// existence of currency id
+func VerifyFeeAble(fact FeeAble, getStateFunc base.GetStateFunc) base.OperationProcessReasonError {
+	if len(fact.FeeBase()) < 1 {
+		return base.NewBaseOperationProcessReasonError(
+			common.ErrMPreProcess.
+				Errorf("empty Fee Base"))
+	}
+
+	for cid := range fact.FeeBase() {
+		_, err := state.ExistsCurrencyPolicy(cid, getStateFunc)
+		if err != nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Errorf("fail to get currency %v", cid))
+		}
+	}
+
+	return nil
+}
+
 type FactUser interface {
 	FactUser() base.Address
 }
