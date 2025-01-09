@@ -141,7 +141,7 @@ func (db *Database) CreateIndex(dIndexes map[string][]mongo.IndexModel) error {
 	}
 
 	for col, models := range dIndexes {
-		if err := db.digestDB.CreateIndex(col, models, indexPrefix); err != nil {
+		if err := db.digestDB.CreateIndex(col, models, IndexPrefix); err != nil {
 			return err
 		}
 	}

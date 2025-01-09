@@ -6,9 +6,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var indexPrefix = "mitum_digest_"
+var IndexPrefix = "mitum_digest_"
 
-var blockIndexModels = []mongo.IndexModel{
+var BlockIndexModels = []mongo.IndexModel{
 	{
 		Keys: bson.D{bson.E{Key: "height", Value: -1}},
 		Options: options.Index().
@@ -16,7 +16,7 @@ var blockIndexModels = []mongo.IndexModel{
 	},
 }
 
-var accountIndexModels = []mongo.IndexModel{
+var AccountIndexModels = []mongo.IndexModel{
 	{
 		Keys: bson.D{bson.E{Key: "address", Value: 1}, bson.E{Key: "height", Value: -1}},
 		Options: options.Index().
@@ -34,7 +34,7 @@ var accountIndexModels = []mongo.IndexModel{
 	},
 }
 
-var balanceIndexModels = []mongo.IndexModel{
+var BalanceIndexModels = []mongo.IndexModel{
 	{
 		Keys: bson.D{bson.E{Key: "address", Value: 1}, bson.E{Key: "height", Value: -1}},
 		Options: options.Index().
@@ -56,7 +56,7 @@ var balanceIndexModels = []mongo.IndexModel{
 	//},
 }
 
-var operationIndexModels = []mongo.IndexModel{
+var OperationIndexModels = []mongo.IndexModel{
 	{
 		Keys: bson.D{bson.E{Key: "addresses", Value: 1}, bson.E{Key: "height", Value: 1}, bson.E{Key: "index", Value: 1}},
 		Options: options.Index().
@@ -74,44 +74,44 @@ var operationIndexModels = []mongo.IndexModel{
 	},
 }
 
-var didRegistryIndexModels = []mongo.IndexModel{
+var DidRegistryIndexModels = []mongo.IndexModel{
 	{
 		Keys: bson.D{
 			bson.E{Key: "contract", Value: 1},
 			bson.E{Key: "height", Value: -1}},
 		Options: options.Index().
-			SetName(indexPrefix + "did_registry_contract_height"),
+			SetName(IndexPrefix + "did_registry_contract_height"),
 	},
 }
 
-var didRegistryDataIndexModels = []mongo.IndexModel{
+var DidRegistryDataIndexModels = []mongo.IndexModel{
 	{
 		Keys: bson.D{
 			bson.E{Key: "contract", Value: 1},
 			bson.E{Key: "method_specific_id", Value: 1},
 			bson.E{Key: "height", Value: -1}},
 		Options: options.Index().
-			SetName(indexPrefix + "did_registry_data_contract_publicKey_height"),
+			SetName(IndexPrefix + "did_registry_data_contract_publicKey_height"),
 	},
 }
 
-var didRegistryDocumentIndexModels = []mongo.IndexModel{
+var DidRegistryDocumentIndexModels = []mongo.IndexModel{
 	{
 		Keys: bson.D{
 			bson.E{Key: "contract", Value: 1},
 			bson.E{Key: "did", Value: 1},
 			bson.E{Key: "height", Value: -1}},
 		Options: options.Index().
-			SetName(indexPrefix + "did_registry_document_contract_did_height"),
+			SetName(IndexPrefix + "did_registry_document_contract_did_height"),
 	},
 }
 
 var DefaultIndexes = map[string] /* collection */ []mongo.IndexModel{
-	DefaultColNameBlock:       blockIndexModels,
-	DefaultColNameAccount:     accountIndexModels,
-	DefaultColNameBalance:     balanceIndexModels,
-	DefaultColNameOperation:   operationIndexModels,
-	DefaultColNameDIDRegistry: didRegistryIndexModels,
-	DefaultColNameDIDData:     didRegistryDataIndexModels,
-	DefaultColNameDIDDocument: didRegistryDocumentIndexModels,
+	DefaultColNameBlock:       BlockIndexModels,
+	DefaultColNameAccount:     AccountIndexModels,
+	DefaultColNameBalance:     BalanceIndexModels,
+	DefaultColNameOperation:   OperationIndexModels,
+	DefaultColNameDIDRegistry: DidRegistryIndexModels,
+	DefaultColNameDIDData:     DidRegistryDataIndexModels,
+	DefaultColNameDIDDocument: DidRegistryDocumentIndexModels,
 }
