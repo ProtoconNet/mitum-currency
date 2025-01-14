@@ -330,7 +330,7 @@ func (opp *CreateContractAccountProcessor) Process( // nolint:dupl
 			}
 
 			c.h = op.Hash()
-			c.item = fact.items[i]
+			c.item = item
 			c.sender = fact.Sender()
 
 			if err := c.PreProcess(ctx, op, getStateFunc); err != nil {
