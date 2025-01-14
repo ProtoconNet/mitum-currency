@@ -473,6 +473,31 @@ func (db *Database) Operations(
 	)
 }
 
+// OperationsByHash returns operation.Operations by order, height and index.
+func (db *Database) OperationsByHash(
+	filter bson.M,
+	callback func(mitumutil.Hash /* fact hash */, OperationValue, int64) (bool, error),
+) error {
+	count, err := db.digestDB.Client().Count(context.Background(), defaultColNameOperation, bson.D{})
+	if err != nil {
+		return err
+	}
+
+	return db.digestDB.Client().Find(
+		context.Background(),
+		defaultColNameOperation,
+		filter,
+		func(cursor *mongo.Cursor) (bool, error) {
+			va, err := LoadOperation(cursor.Decode, db.digestDB.Encoders())
+			if err != nil {
+				return false, err
+			}
+			return callback(va.Operation().Fact().Hash(), va, count)
+		},
+		nil,
+	)
+}
+
 // Account returns AccountValue.
 func (db *Database) Account(a base.Address) (AccountValue, bool /* exists */, error) {
 	var rs AccountValue

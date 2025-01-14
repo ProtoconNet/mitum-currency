@@ -113,6 +113,10 @@ func stringCurrencyQuery(currencyId string) string {
 	return fmt.Sprintf("currency=%s", currencyId)
 }
 
+func stringHashesQuery(hashes string) string {
+	return fmt.Sprintf("hashes=%s", hashes)
+}
+
 func ParseBoolQuery(s string) bool {
 	return s == "1"
 }
