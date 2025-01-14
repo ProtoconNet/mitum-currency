@@ -13,7 +13,7 @@ func (fact SuffrageCandidateFact) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":     fact.Hint().String(),
-			"address":   fact.address,
+			"address":   fact.address.String(),
 			"publickey": fact.publickey.String(),
 			"hash":      fact.BaseFact.Hash().String(),
 			"token":     fact.BaseFact.Token(),

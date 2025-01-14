@@ -1,6 +1,7 @@
 package types
 
 import (
+	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -55,4 +56,10 @@ func (ad *StringAddress) UnmarshalText(b []byte) error {
 
 func (ad StringAddress) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	return bson.TypeString, bsoncore.AppendString(nil, ad.s), nil
+}
+
+func (ad *StringAddress) DecodeBSON(b []byte, _ *bsonenc.Encoder) error {
+	*ad = NewStringAddress(string(b))
+
+	return nil
 }
