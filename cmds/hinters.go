@@ -108,19 +108,11 @@ var AddedSupportedHinters = []encoder.DecodeDetail{
 }
 
 func init() {
-	hinters := ExcludeHint(base.StringAddressHint, launch.Hinters)
-	Hinters = make([]encoder.DecodeDetail, len(hinters)+len(AddedHinters))
-	copy(Hinters, hinters)
-	copy(Hinters[len(hinters):], AddedHinters)
+	Hinters = ExcludeHint(base.StringAddressHint, launch.Hinters)
+	Hinters = append(Hinters, AddedHinters...)
 
-	SupportedProposalOperationFactHinters = make(
-		[]encoder.DecodeDetail,
-		len(launch.SupportedProposalOperationFactHinters)+len(AddedSupportedHinters),
-	)
-	copy(SupportedProposalOperationFactHinters, launch.SupportedProposalOperationFactHinters)
-	copy(SupportedProposalOperationFactHinters[len(launch.SupportedProposalOperationFactHinters):],
-		AddedSupportedHinters,
-	)
+	SupportedProposalOperationFactHinters = append(SupportedProposalOperationFactHinters, launch.SupportedProposalOperationFactHinters...)
+	SupportedProposalOperationFactHinters = append(SupportedProposalOperationFactHinters, AddedSupportedHinters...)
 }
 
 func LoadHinters(encs *encoder.Encoders) error {
