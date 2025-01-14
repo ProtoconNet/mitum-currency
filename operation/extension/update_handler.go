@@ -15,7 +15,7 @@ var (
 	UpdateHandlerHint     = hint.MustNewHint("mitum-extension-update-handler-operation-v0.0.1")
 )
 
-const MaxHandlers = 10
+const MaxHandlers = 20
 
 type UpdateHandlerFact struct {
 	base.BaseFact
