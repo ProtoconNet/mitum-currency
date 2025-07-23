@@ -4,6 +4,8 @@ go 1.22
 
 toolchain go1.22.1
 
+replace github.com/ProtoconNet/mitum2 => ../mitum2
+
 require (
 	github.com/ProtoconNet/mitum2 v0.0.0-20250612112846-83e5237de28b
 	github.com/alecthomas/kong v0.9.0
@@ -21,6 +23,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rainycape/memcache v0.0.0-20150622160815-1031fa0ce2f2
 	github.com/rs/zerolog v1.32.0
+	github.com/traefik/yaegi v0.16.1
 	go.mongodb.org/mongo-driver v1.15.0
 	golang.org/x/crypto v0.31.0
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842

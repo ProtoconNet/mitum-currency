@@ -29,9 +29,10 @@ var CLI struct { //nolint:govet //...
 	Run       cmds.RunCommand  `cmd:"" help:"run node"`
 	Storage   cmds.Storage     `cmd:""`
 	Operation struct {
-		Currency cmds.CurrencyCommand `cmd:"" help:"currency operation"`
-		Suffrage cmds.SuffrageCommand `cmd:"" help:"suffrage operation"`
-		DID      cmds.DIDCommand      `cmd:"" help:"did-registry operation"`
+		Currency      cmds.CurrencyCommand `cmd:"" help:"currency operation"`
+		Suffrage      cmds.SuffrageCommand `cmd:"" help:"suffrage operation"`
+		DID           cmds.DIDCommand      `cmd:"" help:"did-registry operation"`
+		SmartContract cmds.PluginCommand   `cmd:"" help:"smart-contract operation"`
 	} `cmd:"" help:"create operation"`
 	Network struct {
 		Client cmds.NetworkClientCommand `cmd:"" help:"network client"`

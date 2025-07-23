@@ -11,6 +11,7 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extension"
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v3/operation/isaac"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/plugin"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/processor"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
@@ -36,10 +37,12 @@ type NewOperationProcessorInternalWithProposalFunc func(base.Height, base.Propos
 func POperationProcessorsMap(pctx context.Context) (context.Context, error) {
 	var isaacParams *isaac.Params
 	var db isaac.Database
+	var encs *encoder.Encoders
 
 	if err := util.LoadFromContextOK(pctx,
 		launch.ISAACParamsContextKey, &isaacParams,
 		launch.CenterDatabaseContextKey, &db,
+		launch.EncodersContextKey, &encs,
 	); err != nil {
 		return pctx, err
 	}
@@ -124,6 +127,11 @@ func POperationProcessorsMap(pctx context.Context) (context.Context, error) {
 	} else if err := opr.SetProcessor(
 		did.UpdateDIDDocumentHint,
 		did.NewUpdateDIDDocumentProcessor(),
+	); err != nil {
+		return pctx, err
+	} else if err := opr.SetProcessor(
+		plugin.RegisterModelHint,
+		plugin.NewRegisterModelProcessor(*encs),
 	); err != nil {
 		return pctx, err
 	}
@@ -322,6 +330,15 @@ func POperationProcessorsMap(pctx context.Context) (context.Context, error) {
 				nil,
 			)
 		})
+
+	_ = setA.Add(plugin.RegisterModelHint, func(height base.Height, getStatef base.GetStateFunc) (base.OperationProcessor, error) {
+		return opr.New(
+			height,
+			getStatef,
+			nil,
+			nil,
+		)
+	})
 
 	//var f ProposalOperationFactHintFunc = IsSupportedProposalOperationFactHintFunc
 

@@ -31,7 +31,7 @@ func DefaultRunPS() *ps.PS {
 		AddOK(launch.PNameStartSyncSourceChecker, launch.PStartSyncSourceChecker, launch.PCloseSyncSourceChecker, launch.PNameStartNetwork).
 		AddOK(launch.PNameStartLastConsensusNodesWatcher,
 			launch.PStartLastConsensusNodesWatcher, launch.PCloseLastConsensusNodesWatcher, launch.PNameStartNetwork).
-		AddOK(launch.PNameStates, launch.PStates, nil, launch.PNameNetwork).
+		AddOK(launch.PNameStates, launch.PStates, nil, launch.PNameNetwork, launch.PNameEncoder).
 		AddOK(launch.PNameStatesReady, nil, launch.PCloseStates,
 			launch.PNameStartStorage,
 			launch.PNameStartSyncSourceChecker,

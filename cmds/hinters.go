@@ -9,10 +9,13 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extension"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v3/operation/isaac"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/plugin"
 	ccstate "github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	dstate "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
 	cestate "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	pstate "github.com/ProtoconNet/mitum-currency/v3/state/plugin"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
+	ptypes "github.com/ProtoconNet/mitum-currency/v3/types/plugin"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -105,6 +108,11 @@ var AddedHinters = []encoder.DecodeDetail{
 	{Hint: dstate.DataStateValueHint, Instance: dstate.DataStateValue{}},
 	{Hint: dstate.DesignStateValueHint, Instance: dstate.DesignStateValue{}},
 	{Hint: dstate.DocumentStateValueHint, Instance: dstate.DocumentStateValue{}},
+
+	{Hint: plugin.RegisterModelHint, Instance: plugin.RegisterModel{}},
+	{Hint: ptypes.DesignHint, Instance: ptypes.Design{}},
+
+	{Hint: pstate.DesignStateValueHint, Instance: pstate.DesignStateValue{}},
 }
 
 var AddedSupportedHinters = []encoder.DecodeDetail{
@@ -130,6 +138,8 @@ var AddedSupportedHinters = []encoder.DecodeDetail{
 	{Hint: did_registry.CreateDIDFactHint, Instance: did_registry.CreateDIDFact{}},
 	{Hint: did_registry.UpdateDIDDocumentFactHint, Instance: did_registry.UpdateDIDDocumentFact{}},
 	{Hint: did_registry.RegisterModelFactHint, Instance: did_registry.RegisterModelFact{}},
+
+	{Hint: plugin.RegisterModelFactHint, Instance: plugin.RegisterModelFact{}},
 }
 
 func init() {

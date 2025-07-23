@@ -15,8 +15,8 @@ api:
   digest: true
 parameters:
   misc:
-    max_message_size: 3000000
-    object_cache_size: 3000000
+    max_message_size: 25000000
+    object_cache_size: 8000
   isaac:
     threshold: "100"
     interval_broadcast_ballot: 0.2s
