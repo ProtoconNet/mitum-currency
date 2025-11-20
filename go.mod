@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.6
 
 require (
-	github.com/ProtoconNet/mitum2 v0.0.0-20251029064552-48aef1088f5f
+	github.com/ProtoconNet/mitum2 v0.0.0-20251120100758-79abd30e11fe
 	github.com/alecthomas/kong v1.12.1
 	github.com/arl/statsviz v0.7.1
 	github.com/bluele/gcache v0.0.2
@@ -102,4 +102,4 @@ require (
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
-replace github.com/hashicorp/memberlist => github.com/spikeekips/memberlist v0.0.0-20230626195851-39f17fa10d23 // latest fix-data-race branch
+replace github.com/hashicorp/memberlist => github.com/HayoungOh5/memberlist v0.0.0-20251120091718-913bc68ce0d2 // latest fix-data-race branch

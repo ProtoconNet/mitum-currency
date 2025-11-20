@@ -318,7 +318,7 @@ func writePromNodeInfo(b *strings.Builder, results []nodeInfoResult) {
 }
 
 func NodeInfo(client *isaacnetwork.BaseClient, connInfo quicstream.ConnInfo) (*isaacnetwork.NodeInfo, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*500)
 	defer cancel()
 
 	stream, _, err := client.Dial(ctx, connInfo)
