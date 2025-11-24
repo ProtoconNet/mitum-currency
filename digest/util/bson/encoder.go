@@ -90,7 +90,7 @@ func (enc *Encoder) DecodeWithHint(b []byte, ht hint.Hint) (interface{}, error) 
 		return nil, nil
 	}
 
-	return enc.decodeWithHint(b, ht)
+	return enc.decodeWithHint(b, ht.String())
 }
 
 func (enc *Encoder) DecodeWithHintType(b []byte, t hint.Type) (interface{}, error) {
@@ -229,14 +229,18 @@ func (enc *Encoder) addDecodeDetail(d encoder.DecodeDetail) error {
 	return nil
 }
 
-func (enc *Encoder) decodeWithHint(b []byte, ht hint.Hint) (interface{}, error) {
-	v, found := enc.decoders.Find(ht)
+func (enc *Encoder) decodeWithHint(b []byte, s string) (interface{}, error) {
+	ht, d, found, err := enc.decoders.FindByString(s)
+	if err != nil {
+		return nil, util.ErrNotFound.WithMessage(err, "find decoder by hint, %q", s)
+	}
+
 	if !found {
 		return nil,
 			util.ErrNotFound.Errorf("find decoder by hint, %q in bson decoders", ht)
 	}
 
-	i, err := v.Decode(b, ht)
+	i, err := d.Decode(b, ht)
 	if err != nil {
 		return nil, errors.WithMessagef(err, "Decode, %q in bson decoders", ht)
 	}
@@ -244,24 +248,15 @@ func (enc *Encoder) decodeWithHint(b []byte, ht hint.Hint) (interface{}, error) 
 	return i, nil
 }
 
-func (*Encoder) guessHint(b []byte) (hint.Hint, error) {
+func (*Encoder) guessHint(b []byte) (string, error) {
 	e := util.StringError("guess hint")
 
 	var head HintedHead
 	if err := bson.Unmarshal(b, &head); err != nil {
-		return hint.Hint{}, e.WithMessage(err, "hint not found in head")
+		return head.H, e.WithMessage(err, "hint not found in head")
 	}
 
-	ht, err := hint.ParseHint(head.H)
-	if err != nil {
-		return hint.Hint{}, e.Wrap(err)
-	}
-
-	if err := ht.IsValid(nil); err != nil {
-		return ht, e.WithMessage(err, "invalid hint")
-	}
-
-	return ht, nil
+	return head.H, nil
 }
 
 func (enc *Encoder) analyze(d encoder.DecodeDetail, v interface{}) encoder.DecodeDetail {
