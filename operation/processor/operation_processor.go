@@ -3,9 +3,10 @@ package processor
 import (
 	"context"
 	"fmt"
-	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 	"io"
 	"sync"
+
+	"github.com/ProtoconNet/mitum-currency/v3/operation/extras"
 
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
@@ -355,9 +356,11 @@ func (opr *OperationProcessor) Process(
 
 		feeReceiveSts := map[types.CurrencyID]base.State{}
 		var feeRequired = make(map[types.CurrencyID]common.Big)
+		var policy *types.CurrencyPolicy
+		var err error
 
 		for cid, amounts := range feeBase {
-			policy, err := state.ExistsCurrencyPolicy(cid, getStateFunc)
+			policy, err = state.ExistsCurrencyPolicy(cid, getStateFunc)
 			if err != nil {
 				return nil, base.NewBaseOperationProcessReasonError(
 					common.ErrMPreProcess.
@@ -385,14 +388,33 @@ func (opr *OperationProcessor) Process(
 			}
 
 			rq := common.ZeroBig
+			total := common.ZeroBig
 			for _, big := range amounts {
-				switch k, err := policy.Feeer().Fee(big); {
+				total = total.Add(big)
+				f, ok := policy.Feeer().(types.ItemFeeer)
+				if ok {
+					itmFee, _ := f.ItemFee(big)
+					rq = rq.Add(itmFee)
+				} else {
+					switch bsFee, err := policy.Feeer().Fee(big); {
+					case err != nil:
+						return nil,
+							base.NewBaseOperationProcessReasonError("check fee of currency %v; %w", cid, err),
+							nil
+					default:
+						rq = rq.Add(bsFee)
+					}
+				}
+			}
+			_, ok := policy.Feeer().(types.ItemFeeer)
+			if ok {
+				switch bsFee, err := policy.Feeer().Fee(total); {
 				case err != nil:
 					return nil,
 						base.NewBaseOperationProcessReasonError("check fee of currency %v; %w", cid, err),
 						nil
 				default:
-					rq = rq.Add(k)
+					rq = rq.Add(bsFee)
 				}
 			}
 			if v, found := feeRequired[cid]; !found {

@@ -2,6 +2,7 @@ package extras
 
 import (
 	"encoding/json"
+
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum-currency/v3/state"
 	didstate "github.com/ProtoconNet/mitum-currency/v3/state/did-registry"
@@ -676,6 +677,13 @@ func VerifyInActiveContractOwnerHandlerOnly(fact InActiveContractOwnerHandlerOnl
 					Errorf("%v", err))
 		}
 
+		if ca == nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Wrap(common.ErrMValueInvalid).Errorf(
+					"contract account value is nil"))
+		}
+
 		if ca.IsActive() {
 			return base.NewBaseOperationProcessReasonError(
 				common.ErrMPreProcess.
@@ -726,6 +734,13 @@ func VerifyActiveContractOwnerHandlerOnly(fact ActiveContractOwnerHandlerOnly, g
 			return base.NewBaseOperationProcessReasonError(
 				common.ErrMPreProcess.
 					Errorf("%v", err))
+		}
+
+		if ca == nil {
+			return base.NewBaseOperationProcessReasonError(
+				common.ErrMPreProcess.
+					Wrap(common.ErrMValueInvalid).Errorf(
+					"contract account value is nil"))
 		}
 
 		if !ca.IsActive() {
