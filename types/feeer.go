@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"encoding/binary"
+
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -10,15 +11,17 @@ import (
 )
 
 const (
-	FeeerNil   = "nil"
-	FeeerFixed = "fixed"
-	FeeerRatio = "ratio"
+	FeeerNil       = "nil"
+	FeeerFixed     = "fixed"
+	ItemFeeerFixed = "fixed-item"
+	FeeerRatio     = "ratio"
 )
 
 var (
-	NilFeeerHint   = hint.MustNewHint("mitum-currency-nil-feeer-v0.0.1")
-	FixedFeeerHint = hint.MustNewHint("mitum-currency-fixed-feeer-v0.0.1")
-	RatioFeeerHint = hint.MustNewHint("mitum-currency-ratio-feeer-v0.0.1")
+	NilFeeerHint       = hint.MustNewHint("mitum-currency-nil-feeer-v0.0.1")
+	FixedFeeerHint     = hint.MustNewHint("mitum-currency-fixed-feeer-v0.0.1")
+	FixedItemFeeerHint = hint.MustNewHint("mitum-currency-fixed-item-feeer-v0.0.1")
+	RatioFeeerHint     = hint.MustNewHint("mitum-currency-ratio-feeer-v0.0.1")
 )
 
 var UnlimitedMaxFeeAmount = common.NewBig(-1)
@@ -31,6 +34,11 @@ type Feeer interface {
 	Receiver() base.Address
 	Min() common.Big
 	Fee(common.Big) (common.Big, error)
+}
+
+type ItemFeeer interface {
+	Feeer
+	ItemFee(common.Big) (common.Big, error)
 }
 
 type NilFeeer struct {
@@ -121,6 +129,74 @@ func (fa FixedFeeer) IsValid([]byte) error {
 
 func (fa FixedFeeer) isZero() bool {
 	return fa.amount.IsZero()
+}
+
+type FixedItemFeeer struct {
+	hint.BaseHinter
+	receiver      base.Address
+	amount        common.Big
+	itemFeeAmount common.Big
+}
+
+func NewFixedItemFeeer(receiver base.Address, amount, itemFeeAmount common.Big) FixedItemFeeer {
+	return FixedItemFeeer{
+		BaseHinter:    hint.NewBaseHinter(FixedItemFeeerHint),
+		receiver:      receiver,
+		amount:        amount,
+		itemFeeAmount: itemFeeAmount,
+	}
+}
+
+func (FixedItemFeeer) Type() string {
+	return ItemFeeerFixed
+}
+
+func (fa FixedItemFeeer) Bytes() []byte {
+	return util.ConcatBytesSlice(fa.receiver.Bytes(), fa.amount.Bytes())
+}
+
+func (fa FixedItemFeeer) Receiver() base.Address {
+	return fa.receiver
+}
+
+func (fa FixedItemFeeer) Min() common.Big {
+	return fa.amount
+}
+
+func (fa FixedItemFeeer) Fee(common.Big) (common.Big, error) {
+	if fa.isZero(fa.amount) {
+		return common.ZeroBig, nil
+	}
+
+	return fa.amount, nil
+}
+
+func (fa FixedItemFeeer) ItemFee(common.Big) (common.Big, error) {
+	if fa.isZero(fa.itemFeeAmount) {
+		return common.ZeroBig, nil
+	}
+
+	return fa.itemFeeAmount, nil
+}
+
+func (fa FixedItemFeeer) IsValid([]byte) error {
+	if err := fa.BaseHinter.IsValid(nil); err != nil {
+		return err
+	}
+
+	if err := util.CheckIsValiders(nil, false, fa.receiver); err != nil {
+		return util.ErrInvalid.Errorf("invalid receiver for fixed item feeer: %v", err)
+	}
+
+	if !fa.amount.OverNil() {
+		return util.ErrInvalid.Errorf("fixed item feeer amount under zero")
+	}
+
+	return nil
+}
+
+func (fa FixedItemFeeer) isZero(am common.Big) bool {
+	return am.IsZero()
 }
 
 type RatioFeeer struct {

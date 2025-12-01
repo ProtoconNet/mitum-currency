@@ -63,6 +63,40 @@ func (fa *FixedFeeer) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	return fa.unpack(enc, ht, ufa.Receiver, ufa.Amount)
 }
 
+func (fa FixedItemFeeer) MarshalBSON() ([]byte, error) {
+	return bsonenc.Marshal(
+		bson.M{
+			"_hint":           fa.Hint().String(),
+			"receiver":        fa.receiver,
+			"amount":          fa.amount.String(),
+			"item_fee_amount": fa.itemFeeAmount.String(),
+		},
+	)
+}
+
+type FixedItemFeeerBSONUnmarshaler struct {
+	Hint          string `bson:"_hint"`
+	Receiver      string `bson:"receiver"`
+	Amount        string `bson:"amount"`
+	ItemFeeAmount string `bson:"item_fee_amount"`
+}
+
+func (fa *FixedItemFeeer) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringError("Decode bson of FixedItemFeeer")
+
+	var ufa FixedItemFeeerBSONUnmarshaler
+	if err := enc.Unmarshal(b, &ufa); err != nil {
+		return e.Wrap(err)
+	}
+
+	ht, err := hint.ParseHint(ufa.Hint)
+	if err != nil {
+		return e.Wrap(err)
+	}
+
+	return fa.unpack(enc, ht, ufa.Receiver, ufa.Amount, ufa.ItemFeeAmount)
+}
+
 func (fa RatioFeeer) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{

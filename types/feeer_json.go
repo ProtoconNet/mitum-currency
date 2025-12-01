@@ -57,6 +57,40 @@ func (fa *FixedFeeer) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	return fa.unpack(enc, ufa.Hint, ufa.Receiver, ufa.Amount)
 }
 
+type FixedItemFeeerJSONMarshaler struct {
+	hint.BaseHinter
+	Receiver      base.Address `json:"receiver"`
+	Amount        string       `json:"amount"`
+	ItemFeeAmount string       `json:"item_fee_amount"`
+}
+
+func (fa FixedItemFeeer) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(FixedItemFeeerJSONMarshaler{
+		BaseHinter:    fa.BaseHinter,
+		Receiver:      fa.receiver,
+		Amount:        fa.amount.String(),
+		ItemFeeAmount: fa.itemFeeAmount.String(),
+	})
+}
+
+type FixedItemFeeerJSONUnmarshaler struct {
+	Hint          hint.Hint `json:"_hint"`
+	Receiver      string    `json:"receiver"`
+	Amount        string    `json:"amount"`
+	ItemFeeAmount string    `json:"item_fee_amount"`
+}
+
+func (fa *FixedItemFeeer) DecodeJSON(b []byte, enc encoder.Encoder) error {
+	e := util.StringError("Decode json of FixedItemFeeer")
+
+	var ufa FixedItemFeeerJSONUnmarshaler
+	if err := enc.Unmarshal(b, &ufa); err != nil {
+		return e.Wrap(err)
+	}
+
+	return fa.unpack(enc, ufa.Hint, ufa.Receiver, ufa.Amount, ufa.ItemFeeAmount)
+}
+
 type RatioFeeerJSONMarshaler struct {
 	hint.BaseHinter
 	Receiver base.Address `json:"receiver"`

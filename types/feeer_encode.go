@@ -25,6 +25,30 @@ func (fa *FixedFeeer) unpack(enc encoder.Encoder, ht hint.Hint, rc string, am st
 	return nil
 }
 
+func (fa *FixedItemFeeer) unpack(enc encoder.Encoder, ht hint.Hint, rc string, am, ita string) error {
+	switch ad, err := base.DecodeAddress(rc, enc); {
+	case err != nil:
+		return err
+	default:
+		fa.receiver = ad
+	}
+
+	if big, err := common.NewBigFromString(am); err != nil {
+		return err
+	} else {
+		fa.amount = big
+	}
+
+	if big, err := common.NewBigFromString(ita); err != nil {
+		return err
+	} else {
+		fa.itemFeeAmount = big
+	}
+	fa.BaseHinter = hint.NewBaseHinter(ht)
+
+	return nil
+}
+
 func (fa *RatioFeeer) unpack(
 	enc encoder.Encoder,
 	ht hint.Hint,
